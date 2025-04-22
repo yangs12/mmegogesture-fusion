@@ -1,0 +1,69 @@
+defaults:
+  - fusion: multi_cross
+  - _self_
+
+project: 'gesture'
+sensor: 
+  select: ['rad-uD', 'cam-img']
+  # select: ['rad-uD','rad-uD_Whalf','rad-uD_Wdouble','rad-A','rad-R','rad-uD_channel','cam']
+  win_cam: 80       # window length of cam snapshot
+  win_rad: 512      # window length of rad snapshot
+  t_snapshot: 2.667 # time durationo of each snapshot
+  fps_cam: 30
+
+preprocess:
+  flag_statistics: True
+  flag_visualize: False
+
+train:
+  learning_rate: 1e-4
+  weight_decay: 0.01
+  epoch: 500
+  batch_size: 16
+  num_workers: 4
+  delta: 0.01  # for loss
+  traintest_split: 'subject-5_6'  # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
+  n_class: 12
+  pretrain: True
+  
+model:
+  backbone: 'mobilenet-3D'
+  # backbone: 'mobilenet'
+
+wandb:
+  use_wandb: False
+  log_all: False      # log confusion, ROC, and prediction table together 
+  project: 'Gesture'
+
+transforms:
+  t_actual: 1.6        
+  t_spare: 0.2
+  resample_cam: 16
+  cropratio_uD: 1.0
+  size_rad_D: 256
+  size_rad_T: 512
+  size_cam: 256
+  mean_std: {'rad-uD':          [8.2090,6.3781],
+              'rad-uD_Whalf':   [11.5463,6.8219],
+              'rad-uD_Wdouble': [5.0373,6.2107],
+              'rad-A':          [40.2172,7.3238],
+              'rad-R':          [52.2055,4.7976],
+              'rad-D':          [46.6549,23.3134],
+              'rad-uD_channel': [7.6703,7.2454],
+              'cam-img':            [[0.4125,0.1556],[0.4229,0.1490],[0.4251,0.1561]],
+              'cam-vid':            [[0.4125,0.1556],[0.4229,0.1490],[0.4251,0.1561]]
+              }
+    
+
+result:
+  save_vis: False
+  save_model: False
+  path_data: '/path_data'
+  path_des: '/path_metadata'
+  path_save_vis: '/path_save'
+  name: 'Temp'
+  note: 'Temp'
+  labels: ['1','2','3','4','5','6','7','8','9','10','11','12']
+  classes: ['06.Click','05.FSnap','04.ZIn','07.Knock','08.SwpL','09.SwpR',
+          '10.T_ZIn','11.T_ZOut','12.Stop','01.OK','03.TmbUp','02.Photo']
+

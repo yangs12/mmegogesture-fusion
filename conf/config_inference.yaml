@@ -1,0 +1,3 @@
+path_model: '/workspace/model_Fusion.pt'
+path_args: '/workspace/args_Fusion.yaml'
+path_save: '/workspace/'
