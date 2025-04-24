@@ -10,7 +10,7 @@ Ego-centric hand gesture recognition with multi-modal sensors.
 
 Using the `mmegogesture.yaml`
 '''
-conda env create -f env.yaml
+conda env create -f mmegogesture.yaml
 '''
 
 ## Preparing the Dataset
