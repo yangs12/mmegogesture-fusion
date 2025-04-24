@@ -8,6 +8,11 @@ Ego-centric hand gesture recognition with multi-modal sensors.
 * CuDNN: 8
 * Environment can directly be imported through [Docker image](https://hub.docker.com/repository/docker/gogoho88/stanford_mmwave/tags/v3/sha256-481efb7f0500f3657296cd8e1320404887e18f49a2e6683fbcec18d6a9e7d212)
 
+Using the `mmegogesture.yaml`
+'''
+conda env create -f env.yaml
+'''
+
 ## Preparing the Dataset
 * Download the dataset from this [Google Drive link](https://drive.google.com/drive/folders/1sXZ0JFAW5JQ_2f_Y19F3As97P0vvQ913?usp=share_link)
 * Unzip folders `Data (Cleaned)` and `Metadata`
