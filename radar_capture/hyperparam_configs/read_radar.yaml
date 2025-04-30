@@ -1,0 +1,14 @@
+Version: 0.0
+
+# Input data and config path
+folder_path: /bigdata/shuboy/mm-egogesture/data_RPI/
+radar_data_path: ${folder_path}radar/
+radar_file_name: 
+radar_config_path: "./waveform_configs/xwr68xx_gesture.cfg"  
+
+# # Output directories
+# output_dir: ${folder_path}tracking_v02/csv_files_tmp0419/ 
+# RD_output_dir: ${folder_path}tracking_v02/RD_tmp0419/
+
+# Processing configuration
+capture_time: 36
