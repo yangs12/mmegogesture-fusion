@@ -19,6 +19,7 @@ from model import mobileVit, main_Net
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+  # device = torch.device('cpu')
 
   path_args = config['path_args']
   path_model = config['path_model']
@@ -50,6 +51,7 @@ def main(inf_args: DictConfig) -> None:
   data_train, data_test = LoadDataset_Gesture(args, transform_list)
   if 'mobileVit' in args.model.backbone:
     model = mobileVit.main_Net(args).to(device)
+    print('MobileViT model!!!')
   else:
     model = main_Net.MyNet_Main(args,device)
 

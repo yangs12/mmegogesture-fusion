@@ -39,7 +39,7 @@ class Trainer:
                                                 eta_min = 0.01*self.args.train.learning_rate) # Minimum learning rate
 
         Epoch_num = self.args.train.epoch
-        test_loss_best = 100
+        test_loss_best = float('inf')
         test_acc_best  = 0
         step = 0
         for epoch in range(Epoch_num):
@@ -87,7 +87,7 @@ class Trainer:
                 if self.args.wandb.log_all:
                     wandb.log({
                         f'roc': wandb.plot.roc_curve(test_y, test_y_prob, labels=list(self.classes), title='ROC'),
-                        f'consufion': wandb.plot.confusion_matrix(y_true=test_y, preds=test_y_pred, class_names=list(self.classes), title='Confusion')
+                        f'confusion': wandb.plot.confusion_matrix(y_true=test_y, preds=test_y_pred, class_names=list(self.classes), title='Confusion')
                         }, step=epoch)
                 
             if test_acc>=test_acc_best:

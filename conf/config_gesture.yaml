@@ -1,28 +1,28 @@
 defaults:
   - fusion: multi_cross
   - _self_
-
+fusion: multi_cross
 project: 'gesture'
 sensor: 
   select: ['rad-uD', 'cam-img']
   # select: ['rad-uD','rad-uD_Whalf','rad-uD_Wdouble','rad-A','rad-R','rad-uD_channel','cam']
   win_cam: 80       # window length of cam snapshot
   win_rad: 512      # window length of rad snapshot
-  t_snapshot: 2.667 # time durationo of each snapshot
+  t_snapshot: 2.667 # time duration of each snapshot
   fps_cam: 30
 
 preprocess:
-  flag_statistics: True
+  flag_statistics: False
   flag_visualize: False
 
 train:
   learning_rate: 1e-4
   weight_decay: 0.01
-  epoch: 500
+  epoch: 30
   batch_size: 16
   num_workers: 4
   delta: 0.01  # for loss
-  traintest_split: 'subject-5_6'  # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
+  traintest_split: 'subject-0_1_2_9' #'subject-6_7_8'  # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
   n_class: 12
   pretrain: True
   
@@ -33,7 +33,7 @@ model:
 wandb:
   use_wandb: False
   log_all: False      # log confusion, ROC, and prediction table together 
-  project: 'Gesture'
+  project: Gesture-${fusion}-${train.traintest_split}
 
 transforms:
   t_actual: 1.6        
@@ -56,13 +56,13 @@ transforms:
     
 
 result:
-  save_vis: False
-  save_model: False
-  path_data: '/path_data'
-  path_des: '/path_metadata'
-  path_save_vis: '/path_save'
-  name: 'Temp'
-  note: 'Temp'
+  save_vis: True
+  save_model: True
+  path_data: '/bigdata/shuboy/mm-egogesture/Gesture_processed_public/'
+  path_des: '/bigdata/shuboy/mm-egogesture/Metadata/des_public.csv'
+  path_save_vis: '/bigdata/shuboy/mm-egogesture/results/'
+  name: PaperRep_0428-${wandb.project} #'PaperRep_0428'
+  note: PaperRep_0428-${wandb.project} #'PaperRep_0428'
   labels: ['1','2','3','4','5','6','7','8','9','10','11','12']
   classes: ['06.Click','05.FSnap','04.ZIn','07.Knock','08.SwpL','09.SwpR',
           '10.T_ZIn','11.T_ZOut','12.Stop','01.OK','03.TmbUp','02.Photo']

@@ -52,7 +52,7 @@ def main(args: DictConfig) -> None:
   if args.wandb.use_wandb:
     wandb.init(
           project = args.wandb.project, 
-          entity = "gogoho88", 
+          entity = "shuboy", 
           config = config, 
           notes = args.result.note,
           name = args.result.name

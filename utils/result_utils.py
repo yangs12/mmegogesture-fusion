@@ -66,6 +66,10 @@ def split_traintest(des_clean, mode):
                 val_test  = val_test | (des_clean['Subject']==test_subject[sub_idx])
         des_train = des_clean[val_train].to_dict('records')
         des_test  = des_clean[val_test].to_dict('records')
+        print(f'len_train: {len(des_train)}, len_test: {len(des_test)}')
+
+        print(f'subject_train: {set(pd.DataFrame(des_train)["Subject"])}')
+        print(f'subject_test: {set(pd.DataFrame(des_test)["Subject"])}')
         assert len(des_clean)==(len(des_train)+len(des_test))
     ## env independent split
     elif mode=='environment':
@@ -87,8 +91,8 @@ def save_result_confusion(y_ls, y_pred_ls, labels, name, path_des):
         sns.heatmap(cm*100, annot=True, annot_kws={"size": 8}, fmt=".1f", linewidths=1., cmap='Greens', cbar=False)
         ax.set_xlabel('Predicted')
         ax.set_ylabel('Target')
-        ax.set_xticklabels(labels)
-        ax.set_yticklabels(labels)
+        # ax.set_xticklabels(labels)
+        # ax.set_yticklabels(labels)
         ax.set_title('Overall:'+str(round(((np.array(y_ls)==np.array(y_pred_ls)).mean())*100,1))+'%')
         os.makedirs(os.path.join(path_des), exist_ok=True)
         os.makedirs(os.path.join(path_des,'fig'), exist_ok=True)
