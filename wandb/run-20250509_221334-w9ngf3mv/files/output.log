@@ -1,0 +1,50 @@
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=MobileNet_V2_Weights.IMAGENET1K_V1`. You can also use `weights=MobileNet_V2_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+Step: 96. Epoch: 1/10. Iteration: 96/96. Total loss: 2.46007.: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:15<00:00,  6.25it/s]
+test acc  0.21365360915660858 test_loss  2.419466386703414
+Step: 158. Epoch: 2/10. Iteration: 62/96. Total loss: 2.34872.:  65%|███████████████████████████████████████████████████████████████████▊                                     | 62/96 [00:09<00:05,  6.75it/s]
+Traceback (most recent call last):
+  File "/home/jchang13/fusion/mmegogesture-fusion/main_gesture.py", line 86, in <module>
+    main()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/hydra.py", line 119, in run
+    ret = run_job(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+  File "/home/jchang13/fusion/mmegogesture-fusion/main_gesture.py", line 80, in main
+    trainer.train()
+  File "/home/jchang13/fusion/mmegogesture-fusion/utils/trainer.py", line 58, in train
+    loss = loss_fn(y_batch_pred, y_batch)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/nn/modules/loss.py", line 1174, in forward
+    return F.cross_entropy(input, target, weight=self.weight,
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/nn/functional.py", line 3026, in cross_entropy
+    return torch._C._nn.cross_entropy_loss(input, target, weight, _Reduction.get_enum(reduction), ignore_index, label_smoothing)
+KeyboardInterrupt
+Exception ignored in atexit callback: <function _start_and_connect_service.<locals>.teardown_atexit at 0x7f4b6b09e050>
+Traceback (most recent call last):
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/lib/service_connection.py", line 94, in teardown_atexit
+    conn.teardown(hooks.exit_code)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/lib/service_connection.py", line 226, in teardown
+    self._router.join()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/interface/router.py", line 75, in join
+    self._thread.join()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/threading.py", line 1096, in join
+    self._wait_for_tstate_lock()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/threading.py", line 1116, in _wait_for_tstate_lock
+    if lock.acquire(block, timeout):
+KeyboardInterrupt:

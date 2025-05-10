@@ -1,0 +1,27 @@
+===> Model: Cross Attention
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=MobileNet_V2_Weights.IMAGENET1K_V1`. You can also use `weights=MobileNet_V2_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+Step: 96. Epoch: 1/10. Iteration: 96/96. Total loss: 2.44630.: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:14<00:00,  6.41it/s]
+test acc  0.38685208559036255 test_loss  2.4105558401414027
+Step: 192. Epoch: 2/10. Iteration: 96/96. Total loss: 2.23486.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  6.88it/s]
+test acc  0.5726928114891052 test_loss  2.2060905711539327
+Step: 288. Epoch: 3/10. Iteration: 96/96. Total loss: 1.97423.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:14<00:00,  6.72it/s]
+test acc  0.6965866088867188 test_loss  1.9415888258841185
+Step: 384. Epoch: 4/10. Iteration: 96/96. Total loss: 1.74266.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  6.97it/s]
+test acc  0.7332490682601929 test_loss  1.7679680641622821
+Step: 480. Epoch: 5/10. Iteration: 96/96. Total loss: 1.53481.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.10it/s]
+test acc  0.7648546695709229 test_loss  1.5779341148817736
+Step: 576. Epoch: 6/10. Iteration: 96/96. Total loss: 1.35115.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.09it/s]
+test acc  0.8141593337059021 test_loss  1.4012956662967744
+Step: 672. Epoch: 7/10. Iteration: 96/96. Total loss: 1.17607.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  6.98it/s]
+test acc  0.771175742149353 test_loss  1.3880737078024072
+Step: 768. Epoch: 8/10. Iteration: 96/96. Total loss: 1.07543.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.02it/s]
+test acc  0.8230088949203491 test_loss  1.1636234652980992
+Step: 864. Epoch: 9/10. Iteration: 96/96. Total loss: 0.93675.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.09it/s]
+test acc  0.8091024160385132 test_loss  1.0793842062184542
+Step: 960. Epoch: 10/10. Iteration: 96/96. Total loss: 0.83806.: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  6.92it/s]
+test acc  0.8394437432289124 test_loss  1.0058005151495468

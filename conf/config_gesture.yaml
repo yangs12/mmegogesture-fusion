@@ -2,7 +2,7 @@ defaults:
   - fusion: multi_cross
   - _self_
 
-project: 'gesture'
+project: 'gesture_try1'
 sensor: 
   select: ['rad-uD', 'cam-img']
   # select: ['rad-uD','rad-uD_Whalf','rad-uD_Wdouble','rad-A','rad-R','rad-uD_channel','cam']
@@ -18,22 +18,22 @@ preprocess:
 train:
   learning_rate: 1e-4
   weight_decay: 0.01
-  epoch: 500
+  epoch: 50
   batch_size: 16
   num_workers: 4
   delta: 0.01  # for loss
-  traintest_split: 'subject-5_6'  # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
+  traintest_split: 'subject-3_4_5'  # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
   n_class: 12
   pretrain: True
   
 model:
-  backbone: 'mobilenet-3D'
+  backbone: 'mobilenet-2D'
   # backbone: 'mobilenet'
 
 wandb:
-  use_wandb: False
+  use_wandb: True
   log_all: False      # log confusion, ROC, and prediction table together 
-  project: 'Gesture'
+  project: 'Gesture_server'
 
 transforms:
   t_actual: 1.6        
@@ -58,9 +58,9 @@ transforms:
 result:
   save_vis: False
   save_model: False
-  path_data: '/path_data'
-  path_des: '/path_metadata'
-  path_save_vis: '/path_save'
+  path_data: '/bigdata/shuboy/mm-egogesture/Gesture_processed_public'
+  path_des: '/home/jchang13/fusion/mmegogesture-fusion/downloads/Metadata/des_public.csv'
+  path_save_vis: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs'
   name: 'Temp'
   note: 'Temp'
   labels: ['1','2','3','4','5','6','7','8','9','10','11','12']

@@ -1,0 +1,65 @@
+===> Model: Cross Attention
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=MobileNet_V2_Weights.IMAGENET1K_V1`. You can also use `weights=MobileNet_V2_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+Step: 96. Epoch: 1/100. Iteration: 96/96. Total loss: 2.45088.: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:14<00:00,  6.50it/s]
+test acc  0.2579014003276825 test_loss  2.438009384760513
+Step: 192. Epoch: 2/100. Iteration: 96/96. Total loss: 2.26825.: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.06it/s]
+test acc  0.6624526381492615 test_loss  2.206801283073184
+Step: 288. Epoch: 3/100. Iteration: 96/96. Total loss: 1.98667.: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.10it/s]
+test acc  0.7433628439903259 test_loss  1.9952215862033038
+Step: 384. Epoch: 4/100. Iteration: 96/96. Total loss: 1.73896.: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:14<00:00,  6.65it/s]
+test acc  0.7648546695709229 test_loss  1.7707077558664546
+Step: 480. Epoch: 5/100. Iteration: 96/96. Total loss: 1.51449.: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.10it/s]
+test acc  0.786346435546875 test_loss  1.6356144509032162
+Step: 576. Epoch: 6/100. Iteration: 96/96. Total loss: 1.32947.: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.15it/s]
+test acc  0.786346435546875 test_loss  1.4370663823128953
+Step: 672. Epoch: 7/100. Iteration: 96/96. Total loss: 1.17989.: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:13<00:00,  6.93it/s]
+Traceback (most recent call last):
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/PIL/ImageFile.py", line 554, in _save
+    fh = fp.fileno()
+AttributeError: '_idat' object has no attribute 'fileno'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/jchang13/fusion/mmegogesture-fusion/main_gesture.py", line 86, in <module>
+    main()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/hydra.py", line 119, in run
+    ret = run_job(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+  File "/home/jchang13/fusion/mmegogesture-fusion/main_gesture.py", line 80, in main
+    trainer.train()
+  File "/home/jchang13/fusion/mmegogesture-fusion/utils/trainer.py", line 71, in train
+    test_acc, test_loss, test_y, test_y_pred, test_y_prob, test_des = self.test(self.data_test, self.device, self.model, loss_fn, epoch)
+  File "/home/jchang13/fusion/mmegogesture-fusion/utils/trainer.py", line 140, in test
+    self.log_test_predictions(des_batch, x_batch, y_batch,
+  File "/home/jchang13/fusion/mmegogesture-fusion/utils/trainer.py", line 194, in log_test_predictions
+    data_sel.append(wandb.Image(img.permute(1,2,0).cpu().numpy()))
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/data_types/image.py", line 178, in __init__
+    self._initialize_from_data(data_or_path, mode, file_type)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/data_types/image.py", line 338, in _initialize_from_data
+    self._image.save(tmp_path, transparency=None)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/PIL/Image.py", line 2605, in save
+    save_handler(self, fp, filename)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/PIL/PngImagePlugin.py", line 1488, in _save
+    ImageFile._save(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/PIL/ImageFile.py", line 558, in _save
+    _encode_tile(im, fp, tile, bufsize, None, exc)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/PIL/ImageFile.py", line 584, in _encode_tile
+    errcode, data = encoder.encode(bufsize)[1:]
+KeyboardInterrupt

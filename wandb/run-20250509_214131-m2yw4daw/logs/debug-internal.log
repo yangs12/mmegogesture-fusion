@@ -1,0 +1,16 @@
+{"time":"2025-05-09T21:41:31.393115797-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/home/jchang13/fusion/mmegogesture-fusion/wandb/run-20250509_214131-m2yw4daw/logs/debug-core.log"}
+{"time":"2025-05-09T21:41:31.710493281-07:00","level":"INFO","msg":"created new stream","id":"m2yw4daw"}
+{"time":"2025-05-09T21:41:31.710569246-07:00","level":"INFO","msg":"stream: started","id":"m2yw4daw"}
+{"time":"2025-05-09T21:41:31.71065112-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"m2yw4daw"}
+{"time":"2025-05-09T21:41:31.710674116-07:00","level":"INFO","msg":"handler: started","stream_id":"m2yw4daw"}
+{"time":"2025-05-09T21:41:31.710745971-07:00","level":"INFO","msg":"sender: started","stream_id":"m2yw4daw"}
+{"time":"2025-05-09T21:41:31.925163253-07:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-05-09T22:02:02.636509098-07:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-05-09T22:02:02.637185016-07:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-05-09T22:02:03.231967441-07:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-05-09T22:02:03.433010162-07:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-05-09T22:02:03.445251143-07:00","level":"INFO","msg":"stream: closing","id":"m2yw4daw"}
+{"time":"2025-05-09T22:02:03.445290141-07:00","level":"INFO","msg":"handler: closed","stream_id":"m2yw4daw"}
+{"time":"2025-05-09T22:02:03.445309456-07:00","level":"INFO","msg":"writer: Close: closed","stream_id":"m2yw4daw"}
+{"time":"2025-05-09T22:02:03.445350107-07:00","level":"INFO","msg":"sender: closed","stream_id":"m2yw4daw"}
+{"time":"2025-05-09T22:02:03.446481917-07:00","level":"INFO","msg":"stream: closed","id":"m2yw4daw"}

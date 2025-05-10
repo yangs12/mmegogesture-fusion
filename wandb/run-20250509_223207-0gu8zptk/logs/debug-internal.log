@@ -1,0 +1,7 @@
+{"time":"2025-05-09T22:32:07.811875221-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/home/jchang13/fusion/mmegogesture-fusion/wandb/run-20250509_223207-0gu8zptk/logs/debug-core.log"}
+{"time":"2025-05-09T22:32:08.134931413-07:00","level":"INFO","msg":"created new stream","id":"0gu8zptk"}
+{"time":"2025-05-09T22:32:08.13503399-07:00","level":"INFO","msg":"stream: started","id":"0gu8zptk"}
+{"time":"2025-05-09T22:32:08.135076724-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"0gu8zptk"}
+{"time":"2025-05-09T22:32:08.135113253-07:00","level":"INFO","msg":"handler: started","stream_id":"0gu8zptk"}
+{"time":"2025-05-09T22:32:08.135134713-07:00","level":"INFO","msg":"sender: started","stream_id":"0gu8zptk"}
+{"time":"2025-05-09T22:32:08.278656891-07:00","level":"INFO","msg":"Starting system monitor"}

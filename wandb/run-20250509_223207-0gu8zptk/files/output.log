@@ -1,0 +1,114 @@
+===> Model: Cross Attention
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=MobileNet_V2_Weights.IMAGENET1K_V1`. You can also use `weights=MobileNet_V2_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
+Step: 96. Epoch: 1/100. Iteration: 96/96. Total loss: 2.45718.: 100%|██████████████████████████████████████████████████| 96/96 [00:14<00:00,  6.42it/s]
+test acc  0.39190900325775146 test_loss  2.422235605840285
+Step: 192. Epoch: 2/100. Iteration: 96/96. Total loss: 2.26542.: 100%|█████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.05it/s]
+test acc  0.7142857313156128 test_loss  2.2150881724472145
+Step: 288. Epoch: 3/100. Iteration: 96/96. Total loss: 1.99487.: 100%|█████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.00it/s]
+test acc  0.762326180934906 test_loss  1.9896532711578832
+Step: 384. Epoch: 4/100. Iteration: 96/96. Total loss: 1.74787.: 100%|█████████████████████████████████████████████████| 96/96 [00:13<00:00,  6.88it/s]
+test acc  0.81163090467453 test_loss  1.7414260291872374
+Step: 480. Epoch: 5/100. Iteration: 96/96. Total loss: 1.53008.: 100%|█████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.14it/s]
+test acc  0.8078382015228271 test_loss  1.6255524890914126
+Step: 576. Epoch: 6/100. Iteration: 96/96. Total loss: 1.33239.: 100%|█████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.00it/s]
+test acc  0.8166877627372742 test_loss  1.4803156759283786
+Step: 672. Epoch: 7/100. Iteration: 96/96. Total loss: 1.15791.: 100%|█████████████████████████████████████████████████| 96/96 [00:14<00:00,  6.70it/s]
+test acc  0.8192161917686462 test_loss  1.3399767661667352
+Step: 768. Epoch: 8/100. Iteration: 96/96. Total loss: 1.01341.: 100%|█████████████████████████████████████████████████| 96/96 [00:14<00:00,  6.69it/s]
+test acc  0.8533502221107483 test_loss  1.1604913430931294
+Step: 864. Epoch: 9/100. Iteration: 96/96. Total loss: 0.89571.: 100%|█████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.08it/s]
+test acc  0.8710493445396423 test_loss  1.0646150834038948
+Step: 960. Epoch: 10/100. Iteration: 96/96. Total loss: 0.79130.: 100%|████████████████████████████████████████████████| 96/96 [00:13<00:00,  7.18it/s]
+test acc  0.8268015384674072 test_loss  0.9988659377646657
+Step: 1056. Epoch: 11/100. Iteration: 96/96. Total loss: 0.72372.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  6.95it/s]
+test acc  0.8470290899276733 test_loss  0.8716685155550237
+Step: 1152. Epoch: 12/100. Iteration: 96/96. Total loss: 0.64248.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.02it/s]
+test acc  0.8065739870071411 test_loss  0.924592778369238
+Step: 1248. Epoch: 13/100. Iteration: 96/96. Total loss: 0.57858.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.04it/s]
+test acc  0.8293299674987793 test_loss  0.8275443556637287
+Step: 1344. Epoch: 14/100. Iteration: 96/96. Total loss: 0.53328.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.19it/s]
+test acc  0.8520860075950623 test_loss  0.7470907311222496
+Step: 1440. Epoch: 15/100. Iteration: 96/96. Total loss: 0.49109.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.07it/s]
+test acc  0.8470290899276733 test_loss  0.7653663045386448
+Step: 1536. Epoch: 16/100. Iteration: 96/96. Total loss: 0.46109.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.03it/s]
+test acc  0.8457648754119873 test_loss  0.7179221130728571
+Step: 1632. Epoch: 17/100. Iteration: 96/96. Total loss: 0.44686.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.18it/s]
+test acc  0.8584071397781372 test_loss  0.6572008115603257
+Step: 1728. Epoch: 18/100. Iteration: 96/96. Total loss: 0.41763.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.11it/s]
+test acc  0.8546144366264343 test_loss  0.6655244390596783
+Step: 1824. Epoch: 19/100. Iteration: 96/96. Total loss: 0.40315.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.09it/s]
+test acc  0.8356510996818542 test_loss  0.6773130530880013
+Step: 1920. Epoch: 20/100. Iteration: 96/96. Total loss: 0.38223.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  6.97it/s]
+test acc  0.8230088949203491 test_loss  0.6753184296916016
+Step: 2016. Epoch: 21/100. Iteration: 96/96. Total loss: 0.38038.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.18it/s]
+test acc  0.8369153141975403 test_loss  0.6688705561812096
+Step: 2112. Epoch: 22/100. Iteration: 96/96. Total loss: 0.39129.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.19it/s]
+test acc  0.8457648754119873 test_loss  0.6690045931999361
+Step: 2208. Epoch: 23/100. Iteration: 96/96. Total loss: 0.37188.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.18it/s]
+test acc  0.8508217930793762 test_loss  0.6557518046740184
+Step: 2304. Epoch: 24/100. Iteration: 96/96. Total loss: 0.37227.: 100%|███████████████████████████████████████████████| 96/96 [00:13<00:00,  7.20it/s]
+test acc  0.8596713542938232 test_loss  0.6406097759112396
+Step: 2331. Epoch: 25/100. Iteration: 27/96. Total loss: 0.38184.:  28%|█████████████▏                                 | 27/96 [00:04<00:10,  6.34it/s]
+Traceback (most recent call last):
+  File "/home/jchang13/fusion/mmegogesture-fusion/main_gesture.py", line 86, in <module>
+    main()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/_internal/hydra.py", line 119, in run
+    ret = run_job(
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+  File "/home/jchang13/fusion/mmegogesture-fusion/main_gesture.py", line 80, in main
+    trainer.train()
+  File "/home/jchang13/fusion/mmegogesture-fusion/utils/trainer.py", line 65, in train
+    optimizer.step()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/optim/lr_scheduler.py", line 68, in wrapper
+    return wrapped(*args, **kwargs)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/optim/optimizer.py", line 140, in wrapper
+    out = func(*args, **kwargs)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/autograd/grad_mode.py", line 27, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/optim/adamw.py", line 162, in step
+    adamw(params_with_grad,
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/optim/adamw.py", line 219, in adamw
+    func(params,
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torch/optim/adamw.py", line 273, in _single_tensor_adamw
+    exp_avg.mul_(beta1).add_(grad, alpha=1 - beta1)
+KeyboardInterrupt
+Exception ignored in atexit callback: <function _start_and_connect_service.<locals>.teardown_atexit at 0x7fa64decdfc0>
+Traceback (most recent call last):
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/lib/service_connection.py", line 94, in teardown_atexit
+    conn.teardown(hooks.exit_code)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/lib/service_connection.py", line 226, in teardown
+    self._router.join()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/wandb/sdk/interface/router.py", line 75, in join
+    self._thread.join()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/threading.py", line 1096, in join
+    self._wait_for_tstate_lock()
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/threading.py", line 1116, in _wait_for_tstate_lock
+    if lock.acquire(block, timeout):
+KeyboardInterrupt:
+Exception ignored in atexit callback: <bound method TemporaryDirectory.cleanup of <TemporaryDirectory '/tmp/tmp_e4b6eeqwandb-media'>>
+Traceback (most recent call last):
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/tempfile.py", line 882, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/tempfile.py", line 864, in _rmtree
+    _shutil.rmtree(name, onerror=onerror)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+KeyboardInterrupt:

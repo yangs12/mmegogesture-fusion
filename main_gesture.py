@@ -12,9 +12,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
 from utils.trainer import Trainer
 from utils.dataloader import *
-from model import mobileVit, main_Net
+from model import mobileVit, main_Net, mainattention_Net
 
-@hydra.main(version_base=None, config_path="conf", config_name="config_gesture")
+@hydra.main(version_base=None, config_path="conf", config_name="config_gesture_attention")
 def main(args: DictConfig) -> None:
   config = OmegaConf.to_container(args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -52,7 +52,7 @@ def main(args: DictConfig) -> None:
   if args.wandb.use_wandb:
     wandb.init(
           project = args.wandb.project, 
-          entity = "gogoho88", 
+          entity = "justinchang513-stanford-university", 
           config = config, 
           notes = args.result.note,
           name = args.result.name
@@ -65,6 +65,8 @@ def main(args: DictConfig) -> None:
   
   if 'mobileVit' in args.model.backbone:
     model = mobileVit.main_Net(args).to(device)
+  elif 'cross' in args.model.fusion:
+    model = mainattention_Net.MyNet_Main(args,device)
   else:
     model = main_Net.MyNet_Main(args,device)
   # Learning
