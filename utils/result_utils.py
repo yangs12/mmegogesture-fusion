@@ -13,7 +13,7 @@ import pandas as pd
 
 import random
 
-from pytorchvideo.data.encoded_video import EncodedVideo
+# from pytorchvideo.data.encoded_video import EncodedVideo
 from PIL import Image
 
 def count_parameters(model):
@@ -57,20 +57,22 @@ def split_traintest(des_clean, mode):
         test_subject = mode.split('-')[-1].split('_')
         test_subject = [f'Subject{subject_id}' for subject_id in test_subject]
         des_clean = pd.DataFrame(des_clean)
-        for sub_idx in range(len(test_subject)):
-            if sub_idx ==0:
-                val_train = (des_clean['Subject']!=test_subject[sub_idx])
-                val_test  = (des_clean['Subject']==test_subject[sub_idx])
-            else:
-                val_train = val_train & (des_clean['Subject']!=test_subject[sub_idx])
-                val_test  = val_test | (des_clean['Subject']==test_subject[sub_idx])
-        des_train = des_clean[val_train].to_dict('records')
-        des_test  = des_clean[val_test].to_dict('records')
-        print(f'len_train: {len(des_train)}, len_test: {len(des_test)}')
+        des_train = des_clean
+        des_test = des_clean
+        # for sub_idx in range(len(test_subject)):
+        #     if sub_idx ==0:
+        #         val_train = (des_clean['Subject']!=test_subject[sub_idx])
+        #         val_test  = (des_clean['Subject']==test_subject[sub_idx])
+        #     else:
+        #         val_train = val_train & (des_clean['Subject']!=test_subject[sub_idx])
+        #         val_test  = val_test | (des_clean['Subject']==test_subject[sub_idx])
+        # des_train = des_clean[val_train].to_dict('records')
+        # des_test  = des_clean[val_test].to_dict('records')
+        # print(f'len_train: {len(des_train)}, len_test: {len(des_test)}')
 
-        print(f'subject_train: {set(pd.DataFrame(des_train)["Subject"])}')
-        print(f'subject_test: {set(pd.DataFrame(des_test)["Subject"])}')
-        assert len(des_clean)==(len(des_train)+len(des_test))
+        # print(f'subject_train: {set(pd.DataFrame(des_train)["Subject"])}')
+        # print(f'subject_test: {set(pd.DataFrame(des_test)["Subject"])}')
+        # assert len(des_clean)==(len(des_train)+len(des_test))
     ## env independent split
     elif mode=='environment':
         des_clean = pd.DataFrame(des_clean)

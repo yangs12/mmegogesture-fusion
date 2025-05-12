@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
 import pickle
-import seaborn as sns
+# import seaborn as sns
 from utils.result_utils import *
 from utils.camera import *
 
@@ -123,6 +123,7 @@ class Trainer:
             test_table = wandb.Table(columns=columns)
 
         for data in data_test:
+            print('test data', data)
             with torch.no_grad():
                 x_batch = {}
                 for sensor_idx, sensor_sel in enumerate(self.sensor):

@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 import os
 import pandas as pd
 import numpy as np
-import h5py
+# import h5py
 import pickle
 import joblib
 from scipy import signal
@@ -51,7 +51,7 @@ class Dataset_Gesture(Dataset):
         return len(self.des)    
 
     def __getitem__(self, idx):
-        des_snapshot = self.des[idx]
+        des_snapshot = self.des.iloc[idx]
         episode = des_snapshot['Episode']
         order   = des_snapshot['Order']
         gesture = des_snapshot['Gesture']
