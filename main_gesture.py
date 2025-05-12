@@ -14,7 +14,7 @@ from utils.trainer import Trainer
 from utils.dataloader import *
 from model import mobileVit, main_Net, mainattention_Net
 
-@hydra.main(version_base=None, config_path="conf", config_name="config_gesture_attention")
+@hydra.main(version_base=None, config_path="conf", config_name="att_0129")
 def main(args: DictConfig) -> None:
   config = OmegaConf.to_container(args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

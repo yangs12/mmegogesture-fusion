@@ -18,7 +18,7 @@ preprocess:
 train:
   learning_rate: 1e-4
   weight_decay: 0.01
-  epoch: 100
+  epoch: 25
   batch_size: 16
   num_workers: 4
   delta: 0.01  # for loss
@@ -57,12 +57,13 @@ transforms:
     
 
 result:
-  save_vis: True
-  save_model: True∂
+  save_vis: False
+  save_model: True
   path_data: '/bigdata/shuboy/mm-egogesture/Gesture_processed_public'
   path_des: '/home/jchang13/fusion/mmegogesture-fusion/downloads/Metadata/des_public.csv'
   path_save_vis: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
-  name: 'jchang-gesture_attention-epoch100'
+  path_save_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model'
+  name: 'decay_0.05'
   note: 'Temp'
   labels: ['1','2','3','4','5','6','7','8','9','10','11','12']
   classes: ['06.Click','05.FSnap','04.ZIn','07.Knock','08.SwpL','09.SwpR',

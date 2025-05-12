@@ -13,9 +13,9 @@ import torch
 from utils.trainer import Trainer
 from utils.dataloader import *
 from utils.result_utils import *
-from model import mobileVit, main_Net
+from model import mobileVit, main_Net, mainattention_Net
 
-@hydra.main(version_base=None, config_path="conf", config_name="config_inference")
+@hydra.main(version_base=None, config_path="conf", config_name="config_inference_attention")
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -48,8 +48,11 @@ def main(inf_args: DictConfig) -> None:
                           ]}
 
   data_train, data_test = LoadDataset_Gesture(args, transform_list)
+
   if 'mobileVit' in args.model.backbone:
     model = mobileVit.main_Net(args).to(device)
+  elif 'cross' in args.model.fusion:
+    model = mainattention_Net.MyNet_Main(args,device)
   else:
     model = main_Net.MyNet_Main(args,device)
 
@@ -67,7 +70,7 @@ def main(inf_args: DictConfig) -> None:
   loss_fn=torch.nn.CrossEntropyLoss().to(device)
   test_acc, test_loss, test_y, test_y_pred, test_y_prob, test_des = trainer.test(data_test, device, model, loss_fn, 0)
 
-  save_result_confusion(test_y, test_y_pred, trainer.label, 'confusion', config['path_save'])
+  save_result_confusion(test_y, test_y_pred, trainer.label, 'test-confusion', config['path_save'])
 
 if __name__ == '__main__':
   main()

@@ -95,6 +95,12 @@ class Trainer:
                 if self.args.result.save_vis and epoch>0:
                     save_result_confusion(test_y, test_y_pred, self.label, 'best-'+self.args.result.name, self.path_save_vis)
                     save_result_statistics(test_y, test_y_pred, test_des, 'best-'+self.args.result.name, self.path_save_vis)
+                # save the best model
+                if self.args.result.save_model:
+                    if not os.path.exists(self.args.result.path_save_model):
+                        os.makedirs(self.args.result.path_save_model)
+                    model_save_path = os.path.join(self.args.result.path_save_model, f"{self.args.result.name}.pt")
+                    torch.save(self.model.state_dict(), model_save_path)    
             if test_loss<=test_loss_best:
                 test_loss_best = test_loss
                     
