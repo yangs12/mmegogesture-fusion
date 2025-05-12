@@ -1,3 +1,3 @@
-path_model: '/bigdata/shuboy/mm-egogesture/model_Fusion.pt'
-path_args: /bigdata/shuboy/mm-egogesture/args_Fusion.yaml
-path_save: '/bigdata/shuboy/mm-egogesture/results/'
+path_model: /home/shuboy/Desktop/Gesture_data/model_Fusion.pt
+path_args: /home/shuboy/Desktop/Gesture_data/args_Fusion.yaml
+path_save: /home/shuboy/Desktop/Gesture_data/results

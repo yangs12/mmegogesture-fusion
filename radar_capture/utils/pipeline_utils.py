@@ -160,7 +160,10 @@ def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
     plt.yticks(np.linspace(0, args.n_uD_fft, 11), np.round(np.linspace(uD_axis[0], uD_axis[-1], 11), 2))
     plt.gca().invert_yaxis()
     plt.tight_layout(pad=0.5)
-    plt.savefig(os.path.join(args.output_dir, 'tracks_uD_figs', f'{radar_file_name}_track_{track_id}.png'))
+    if track_id is not None:
+        plt.savefig(os.path.join(args.output_dir, 'tracks_uD_figs', f'{radar_file_name}_track_{track_id}.png'))
+    else:
+        plt.savefig(os.path.join(args.output_dir, f'{radar_file_name}.png'))
     plt.close()
 
 

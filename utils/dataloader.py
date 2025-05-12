@@ -111,6 +111,7 @@ def LoadDataset_Gesture(args, transform_list):
     des_clean = des_clean.to_dict('records')
     ## random split
     des_train, des_test = split_traintest(des_clean, args.train.traintest_split)
+    des_test = des_train
 
     transform_train = transform_list['train'] + [NormalizeTensor(mean_std=args.transforms.mean_std, apply=sensor)]
     transform_test  = transform_list['test'] + [NormalizeTensor(mean_std=args.transforms.mean_std, apply=sensor)]

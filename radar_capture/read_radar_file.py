@@ -14,12 +14,16 @@ import cv2
 # import shutil
 import pandas as pd
 import json
-
+from omegaconf import OmegaConf
+import time
 
 
 @hydra.main(version_base="1.2", config_path="hyperparam_configs", config_name="read_radar")
 # args are imported from the config file - hyperparam_configs/tracking_config.yaml
 def main(args: DictConfig) -> None:
+    OmegaConf.set_struct(args, False) # allowing adding new keys to args
+    # Start timing
+    start_time = time.time()
 
     file_date = args.radar_data_path.split("/")[-3].split(".")[0]+"/"
     print(f"Processing {file_date} folder")
@@ -37,6 +41,13 @@ def main(args: DictConfig) -> None:
         cfg = f.readlines()
     radar_config = RadarConfig(cfg)
     radar_params = radar_config.get_params()
+
+    # Some parameters
+    uD_axis = np.arange(-args.n_uD_fft//2, args.n_uD_fft//2)*2*radar_params['velocity_max']/args.n_uD_fft  
+    args.uD_bins_ps = int(radar_params['n_chirps']/(args.n_uD_fft*(1-args.overlap_ratio)) * radar_params['fps'])  
+    print(f"uD bins per second: {args.uD_bins_ps}")
+    k = np.arange(-args.n_angle_fft/2, args.n_angle_fft/2)
+    args.k_rad = (np.arcsin(2 / args.n_angle_fft * k)).tolist()
 
     # Processing each radar file
     for radar_file_path in radar_files:
@@ -60,6 +71,14 @@ def main(args: DictConfig) -> None:
         radar_cube = radar_cube[:int(args.capture_time * radar_params['fps']+1),...]
         num_radar_frames = radar_cube.shape[0]
         print("Final radar_cube shape: ", radar_cube.shape)
+
+        uD = RD(radar_cube, args, if_stft=True, window=False)
+        print("uD shape: ", uD.shape)
+
+        # np.savez_compressed(os.path.join(args.output_dir, 'entire_uD', f'{radar_file_name}_track_{track_id}.npz'), uD=uD_person)
+        save_uD_plot(uD, args, radar_file_name, uD_axis)
+    end_time = time.time()
+    print(f"Total time taken: {end_time - start_time} seconds")
 
 if __name__ == "__main__":
     main()

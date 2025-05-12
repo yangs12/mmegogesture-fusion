@@ -4,7 +4,7 @@ Main File
 import os
 import sys
 import hydra
-import wandb
+# import wandb
 from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -19,6 +19,7 @@ from model import mobileVit, main_Net
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+  print(f'Using device: {device}')
   # device = torch.device('cpu')
 
   path_args = config['path_args']
