@@ -1,0 +1,10 @@
+sensor: 
+  select: ['rad-uD', 'cam-img']
+model:
+  backbone: 'mobilenet-3D'
+train:
+  pretrain: True
+  n_class: 12
+
+model_path: /bigdata/shuboy/mm-egogesture/model_Fusion.pt
+result_dir: /bigdata/shuboy/mm-egogesture/quantized_models/

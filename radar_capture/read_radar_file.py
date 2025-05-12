@@ -14,13 +14,13 @@ import cv2
 # import shutil
 import pandas as pd
 import json
+import time
 
 
 
 @hydra.main(version_base="1.2", config_path="hyperparam_configs", config_name="read_radar")
 # args are imported from the config file - hyperparam_configs/tracking_config.yaml
 def main(args: DictConfig) -> None:
-
     file_date = args.radar_data_path.split("/")[-3].split(".")[0]+"/"
     print(f"Processing {file_date} folder")
 
@@ -40,6 +40,7 @@ def main(args: DictConfig) -> None:
 
     # Processing each radar file
     for radar_file_path in radar_files:
+        start_time = time.time()
         radar_file_name = (radar_file_path.split("/")[-1]).replace(".npz", "")
         print(f"\n**Processing {radar_file_path}**")
 
@@ -60,6 +61,7 @@ def main(args: DictConfig) -> None:
         radar_cube = radar_cube[:int(args.capture_time * radar_params['fps']+1),...]
         num_radar_frames = radar_cube.shape[0]
         print("Final radar_cube shape: ", radar_cube.shape)
-
+    end_time = time.time()
+    print(f"Time taken: {end_time - start_time:.2f} seconds")
 if __name__ == "__main__":
     main()
