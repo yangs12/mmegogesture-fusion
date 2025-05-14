@@ -1,0 +1,6 @@
+# ignore folders
+wandb/
+downloads/
+outputs/
+# ignore files
+*__pycache__*

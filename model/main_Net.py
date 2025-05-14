@@ -9,6 +9,7 @@ from .myNet3D import MyNet3D
 class MyNet_Main(torch.nn.Module):
     def __init__(self, args, device):
         super(MyNet_Main, self).__init__()
+        print("===> Model: Concatenation")
         self.device = device
         self.sensor = [args.sensor.select] if str(type(args.sensor.select))=="<class 'str'>" else args.sensor.select
         dim_last_layer = 0

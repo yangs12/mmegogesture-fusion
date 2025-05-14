@@ -1,0 +1,3 @@
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/decay_0.05.pt'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/config_gesture_attention.yaml'
+path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'

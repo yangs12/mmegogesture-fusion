@@ -99,7 +99,7 @@ class Trainer:
                 if self.args.result.save_model:
                     if not os.path.exists(self.args.result.path_save_model):
                         os.makedirs(self.args.result.path_save_model)
-                    model_save_path = os.path.join(self.args.result.path_save_model, f"{self.args.result.name}.pt")
+                    model_save_path = os.path.join(self.args.result.path_save_model, f"{self.args.result.name}_best.pt")
                     torch.save(self.model.state_dict(), model_save_path)    
             if test_loss<=test_loss_best:
                 test_loss_best = test_loss
@@ -108,6 +108,13 @@ class Trainer:
             save_result_confusion(test_y, test_y_pred, self.label, 'last-'+self.args.result.name, self.path_save_vis)
             save_result_statistics(test_y, test_y_pred, test_des, 'last-'+self.args.result.name, self.path_save_vis)
             save_result_pred(self.result, 'last-'+self.args.result.name, self.path_save_vis)
+        
+        # save the last model
+        if self.args.result.save_model:
+            if not os.path.exists(self.args.result.path_save_model):
+                os.makedirs(self.args.result.path_save_model)
+            model_save_path = os.path.join(self.args.result.path_save_model, f"{self.args.result.name}_last.pt")
+            torch.save(self.model.state_dict(), model_save_path)   
 
     def test(self, data_test, device, model, loss_fn, epoch):
         test_loss = 0.0
