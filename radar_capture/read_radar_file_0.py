@@ -24,7 +24,7 @@ def main(args: DictConfig) -> None:
     OmegaConf.set_struct(args, False) # allowing adding new keys to args
     # Start timing
     start_time = time.time()
-
+    os.makedirs(args.output_resize_dir, exist_ok=True)
     file_date = args.radar_data_path.split("/")[-3].split(".")[0]+"/"
     print(f"Processing {file_date} folder")
 
@@ -46,8 +46,6 @@ def main(args: DictConfig) -> None:
     uD_axis = np.arange(-args.n_uD_fft//2, args.n_uD_fft//2)*2*radar_params['velocity_max']/args.n_uD_fft  
     args.uD_bins_ps = int(radar_params['n_chirps']/(args.n_uD_fft*(1-args.overlap_ratio)) * radar_params['fps'])  
     print(f"uD bins per second: {args.uD_bins_ps}")
-    k = np.arange(-args.n_angle_fft/2, args.n_angle_fft/2)
-    args.k_rad = (np.arcsin(2 / args.n_angle_fft * k)).tolist()
 
     # Processing each radar file
     for radar_file_path in radar_files:
@@ -75,8 +73,56 @@ def main(args: DictConfig) -> None:
         uD = RD(radar_cube, args, if_stft=True, window=False)
         print("uD shape: ", uD.shape)
 
-        # np.savez_compressed(os.path.join(args.output_dir, 'entire_uD', f'{radar_file_name}_track_{track_id}.npz'), uD=uD_person)
-        save_uD_plot(uD, args, radar_file_name, uD_axis)
+        # np.save(os.path.join(args.output_dir, f'{radar_file_name}-0-rad-uD.npy'), uD)
+        # save_uD_plot(uD, args, radar_file_name, uD_axis)
+
+        if args.if_resize_uD:
+            # Resize the uD to the desired size
+            uD_resized = cv2.resize(uD, (args.uD_width, args.uD_height))
+            print("Resized uD shape: ", uD_resized.shape)
+            # os.makedirs(os.path.join(args.output_dir, 'uD_resized'), exist_ok=True)
+            np.save(os.path.join(args.output_resize_dir, f'{radar_file_name}-0-rad-uD.npy'), uD_resized)
+            
+            save_uD_plot(uD_resized, args, radar_file_name+'_resized', uD_axis)
+        if args.if_resize_img:
+            vide_path = os.path.join(args.folder_path, 'camera', radar_file_name + ".avi")
+            print(f"Video path: {vide_path}")
+            # Load the video
+            cap = cv2.VideoCapture(vide_path)
+            if not cap.isOpened():
+                print("Error opening video file")
+                continue
+            # Read the first frame
+            frames = []
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                frames.append(frame)
+            print(f"Total frames loaded: {len(frames)}")
+            # if not ret:
+            #     print("Error reading video frame")
+            #     continue
+            # Calculate the middle frame index for a 2.667s video
+            middle_frame_index = int(args.capture_time * args.cam_fps / 2)
+
+            # Ensure the index is within bounds
+            if middle_frame_index >= len(frames):
+                print("Middle frame index exceeds total frames, skipping.")
+                continue
+
+            # Extract the middle frame
+            img = frames[middle_frame_index]
+            # Resize the image to the desired size
+            img_resized = cv2.resize(img, (args.img_width, args.img_height))
+            print("Resized image shape: ", img_resized.shape)
+            # os.makedirs(os.path.join(args.output_dir, 'img_resized'), exist_ok=True)
+            np.save(os.path.join(args.output_resize_dir, f'{radar_file_name}-0-img.npy'), img_resized)
+            # Save the resized image
+            # save_img_path = os.path.join(args.output_dir, 'img_resized', f'{radar_file_name}.png')
+            # os.makedirs(os.path.dirname(save_img_path), exist_ok=True)
+            cv2.imwrite(os.path.join(args.output_dir, f'{radar_file_name}-0-img.png'), img_resized)
+            # print(f"Resized image saved at: {save_img_path}")
     end_time = time.time()
     print(f"Total time taken: {end_time - start_time} seconds")
 

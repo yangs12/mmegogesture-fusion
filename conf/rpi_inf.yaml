@@ -15,6 +15,10 @@ train:
 model:
   backbone: mobilenet-3D
 path_model: /home/shuboy/Desktop/Gesture_data/model_Fusion.pt
+# model_quantized_v0_wholemodel.pt
+# model_Fusion.pt
+# model_quantized_v0.pth
+# model_Fusion.pt
 result_dir:
 
 result:

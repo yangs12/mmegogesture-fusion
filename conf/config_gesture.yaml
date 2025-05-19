@@ -20,7 +20,7 @@ train:
   weight_decay: 0.01
   epoch: 30
   batch_size: 16
-  num_workers: 4
+  num_workers: 1
   delta: 0.01  # for loss
   traintest_split: 'subject-0_1_2_9' #'subject-6_7_8'  # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
   n_class: 12

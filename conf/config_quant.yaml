@@ -1,0 +1,10 @@
+sensor: 
+  select: ['rad-uD', 'cam-img']
+model:
+  backbone: 'mobilenet-3D'
+train:
+  pretrain: True
+  n_class: 12
+
+model_path:  /home/shuboy/Desktop/Gesture_data/model_Fusion.pt
+result_dir: /home/shuboy/Desktop/Gesture_data/
