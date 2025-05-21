@@ -25,6 +25,7 @@ def main(args: DictConfig) -> None:
     # Start timing
     start_time = time.time()
     os.makedirs(args.output_resize_dir, exist_ok=True)
+    os.makedirs(args.output_dir, exist_ok=True)
     file_date = args.radar_data_path.split("/")[-3].split(".")[0]+"/"
     print(f"Processing {file_date} folder")
 

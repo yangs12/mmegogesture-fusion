@@ -6,12 +6,13 @@ from utils.transform import NormalizeTensor
 import os
 import numpy as np
 from torchvision import transforms
+import time
 # Load configuration
 args = OmegaConf.load("conf/rpi_inf.yaml")  # path to your config
 path_model = args.path_model
 sensor = [args.sensor.select] if isinstance(args.sensor.select, str) else args.sensor.select
 
-data_dir =  '/home/shuboy/captured_data/capture_resized/'
+data_dir =  '/home/shuboy/captured_data/capture_resized/2025May20-1823/'
 # '/home/shuboy/Desktop/Gesture_data/paper_data/'
 # '/home/shuboy/captured_data/capture_resized/'
 # Get unique file names with pattern *-img.npy
@@ -22,8 +23,8 @@ for file in os.listdir(data_dir):
 
 print(f"Unique files: {unique_episodes}")
 # episode = list(unique_episodes)[0].replace('-img.npy', '')
-
-for episode in unique_episodes:
+start = time.time()
+for episode in sorted(unique_episodes):
     episode = episode.replace('-img.npy', '')
     print(f"------Episode: {episode}")
     data_img = np.load(os.path.join(data_dir, f'{episode}-img.npy'))
@@ -79,4 +80,6 @@ for episode in unique_episodes:
         # y_batch_prob = model_int8(x_batch)
         y_batch_prob = model_fp32(x_batch)
         y_batch_pred = torch.argmax(y_batch_prob, axis=1)
-        print(f'\n --------Predicted class: {y_batch_pred.item()}')
+        print(f'--------Predicted class: {y_batch_pred.item()} \n')
+end = time.time()
+print(f"Total time taken: {end - start} seconds")
