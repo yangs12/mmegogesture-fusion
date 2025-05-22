@@ -126,7 +126,7 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
         # Zxx=Zxx.transpose((0,2,1))
         Zxx=np.fft.fftshift(Zxx,0)
         print('Zxx', Zxx.shape)
-        uD = 10*np.log10(np.abs(Zxx).mean((1,2,3)) + 1e-9)
+        uD = 20*np.log10(np.abs(Zxx).mean((1,2,3)) + 1e-9)
         # uD=10*np.log(np.mean(np.abs(Zxx),-1) + 1e-9) 
         return uD  
         
