@@ -18,7 +18,6 @@ from model import mobileVit, main_Net
 def main(args: DictConfig) -> None:
   # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
   device = torch.device('cpu')
-
   model = main_Net.MyNet_Main(args, device)
   model.load_state_dict(torch.load(args.model_path))
   model.eval()
@@ -26,10 +25,10 @@ def main(args: DictConfig) -> None:
   #   print(f"{name}: {param.dtype}")  # all float32
 
 
-  model.qconfig = torch.quantization.get_default_qconfig('fbgemm')
+  model.qconfig = torch.quantization.get_default_qconfig('qnnpack')
   # qint8 for weights and quint8 for activations
   # FBGEMM backend, which is an optimized int8 kernel for x86 CPUs
-  qconfig = torch.quantization.get_default_qconfig('fbgemm')
+  qconfig = torch.quantization.get_default_qconfig('qnnpack')
   print('------------')
   print("Activation observer:", qconfig.activation)
   print("Weight observer:", qconfig.weight)
@@ -39,7 +38,7 @@ def main(args: DictConfig) -> None:
 
   torch.quantization.prepare(model, inplace=True)
   torch.quantization.convert(model, inplace=True)
-  torch.save(model, args.result_dir+'model_quantized_v0.pt')
+  torch.save(model.state_dict(), args.result_dir+'model_quantized_v0_qnnpack_states.pt')
 
 
 if __name__ == '__main__':
