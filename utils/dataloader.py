@@ -130,6 +130,7 @@ def LoadDataset_Gesture(args, transform_list):
                                 flag='test',
                                 transform = transforms.Compose(transform_test),
                                 )
+    print('data test', data_test[0][0].shape, data_test[0][1].shape)
 
     data_train = DataLoader(data_train, collate_fn=my_collate_fn, batch_size=args.train.batch_size, shuffle=True, num_workers=args.train.num_workers)
     data_test = DataLoader(data_test, collate_fn=my_collate_fn, batch_size=int(np.max((args.train.batch_size//4,1))), shuffle=False, num_workers=args.train.num_workers)

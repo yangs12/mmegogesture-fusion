@@ -70,5 +70,6 @@ class Dataset_Gesture(Dataset):
         output = [data[key] for key in data.keys()]
         output.append(label)
         output.append(des_snapshot)
+        # print(f"Output shape: {output[0], output[1], output[2]}") #Output shape: (torch.Size([256, 512]), torch.Size([3, 256, 256]), torch.Size([3]))
         return output
         

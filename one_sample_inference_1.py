@@ -12,7 +12,7 @@ args = OmegaConf.load("conf/rpi_inf.yaml")  # path to your config
 path_model = args.path_model
 sensor = [args.sensor.select] if isinstance(args.sensor.select, str) else args.sensor.select
 
-data_dir =  '/home/shuboy/captured_data/capture_resized/2025May20-1823/'
+data_dir =  '/home/shuboy/captured_data/capture_resized/2025May21-1709/' #2025May21-1310/' #2025May21-1229/
 # '/home/shuboy/Desktop/Gesture_data/paper_data/'
 # '/home/shuboy/captured_data/capture_resized/'
 # Get unique file names with pattern *-img.npy
@@ -23,14 +23,38 @@ for file in os.listdir(data_dir):
 
 print(f"Unique files: {unique_episodes}")
 # episode = list(unique_episodes)[0].replace('-img.npy', '')
-start = time.time()
+times = []
+# Load model
+device = torch.device('cpu')
+model_fp32 = main_Net.MyNet_Main(args, device).to(device)
+model_fp32.load_state_dict(torch.load(path_model, map_location=device))
+model_fp32.eval()
+
+# Build preprocessing transforms (test only)
+transform_list = [
+    ToCHWTensor(apply=sensor),
+    # CenterCrop_Time(win_snapshot=(args.sensor.win_cam, args.sensor.win_rad),
+    #                 t_snapshot=args.sensor.t_snapshot, 
+    #                 t_actual=args.transforms.t_actual, 
+    #                 apply=sensor),
+    # ResizeTensor(size_rad=(args.transforms.size_rad_D, args.transforms.size_rad_T), 
+                #  size_cam=args.transforms.size_cam, 
+                #  apply=sensor),
+    NormalizeTensor(mean_std=args.transforms.mean_std, apply=sensor)
+]
+transform = transforms.Compose(transform_list)
+
+labels = [i for i in range(12) for _ in range(3)]
+episode_i = 0
+correct_samples = 0
 for episode in sorted(unique_episodes):
+    start = time.time()
     episode = episode.replace('-img.npy', '')
     print(f"------Episode: {episode}")
     data_img = np.load(os.path.join(data_dir, f'{episode}-img.npy'))
     data_img = np.transpose(data_img, (2, 0, 1))  # Reorder dimensions from (H, W, C) to (C, H, W)
     data_uD = np.load(os.path.join(data_dir,f'{episode}-rad-uD.npy'))
-    print(f"Data shapes: {data_img.shape}, {data_uD.shape}")
+    # print(f"Data shapes: {data_img.shape}, {data_uD.shape}")
     data = {}
     data['cam-img'] = data_img
     data['rad-uD'] = data_uD
@@ -38,40 +62,13 @@ for episode in sorted(unique_episodes):
     data['des'] = np.nan
 
 
-    # Build preprocessing transforms (test only)
-    transform_list = [
-        ToCHWTensor(apply=sensor),
-        # CenterCrop_Time(win_snapshot=(args.sensor.win_cam, args.sensor.win_rad),
-        #                 t_snapshot=args.sensor.t_snapshot, 
-        #                 t_actual=args.transforms.t_actual, 
-        #                 apply=sensor),
-        # ResampleVideo(resample=args.transforms.resample_cam, apply=sensor),  # RGB only
-        # CropDoppler(ratio=args.transforms.cropratio_uD, apply=sensor),       # radar-uD only
-        # ResizeTensor(size_rad=(args.transforms.size_rad_D, args.transforms.size_rad_T), 
-                    #  size_cam=args.transforms.size_cam, 
-                    #  apply=sensor),
-        NormalizeTensor(mean_std=args.transforms.mean_std, apply=sensor)
-    ]
-    transform = transforms.Compose(transform_list)
+
     sample = transform(data)
-
-    # label = int(gesture.split('e')[-1])-1
-
-    # # Load the dataset to get one sample (or manually prepare one)
-    # _, test_dataset = LoadDataset_Gesture(args, {'test': transform_list, 'train': []})
-    # sample = test_dataset.dataset[0]
-    # print(f"Sample shape: {sample[0].shape, sample[1].shape, sample[2], sample[3]}") # uD 256*512, img 3*256*256, label, des
-
-
-    # Load model
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model_fp32 = main_Net.MyNet_Main(args, device).to(device)
-    model_fp32.load_state_dict(torch.load(path_model, map_location=device))
-    model_fp32.eval()
+    # print(sample['cam-img'].shape, np.mean(sample['cam-img'][0]))
 
 
     x_batch = {}
-    print('sensor:', sensor)
+    # print('sensor:', sensor) #sensor: ['rad-uD', 'cam-img']
     for sensor_idx, sensor_sel in enumerate(sensor):
         x_batch[sensor_sel] = sample[sensor_sel].unsqueeze(0).to(device, dtype=torch.float)
         
@@ -80,6 +77,14 @@ for episode in sorted(unique_episodes):
         # y_batch_prob = model_int8(x_batch)
         y_batch_prob = model_fp32(x_batch)
         y_batch_pred = torch.argmax(y_batch_prob, axis=1)
-        print(f'--------Predicted class: {y_batch_pred.item()} \n')
-end = time.time()
-print(f"Total time taken: {end - start} seconds")
+        if y_batch_pred.item() == labels[episode_i]:
+            correct_samples += 1
+        print(f'--------Predicted class: {y_batch_pred.item()}')
+        episode_i += 1
+    end = time.time()
+    times.append(end - start)
+    print(f"Time taken for episode {episode}: {end - start} seconds \n")
+# Calculate and print the average time taken
+avg_time = sum(times) / len(times)
+print(f"Average time taken for all episodes: {avg_time} seconds")
+print("average acc", correct_samples / len(unique_episodes))
