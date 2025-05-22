@@ -515,7 +515,7 @@ class DCA1000:
         # first block is shorter (for calibration?), and last block doesnt have chirp data
         # if length is not num_chirps+header, skip the entire frame
     #    chirp_block=np.concatenate([block[1:] for block in blocks if len(block)==num_chirps+1],0) 
-        print('entire block len', len(blocks))
+        # print('entire block len', len(blocks))
         num_frames = { 'decoded_frames': len(blocks) }
         # for i, block in enumerate(blocks):
         #     if len(block) != num_chirps + 1:

@@ -115,14 +115,19 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
 
     elif if_stft:
         # Collapse the angle dimension, since at different range, angle FFT might have different number of bins
-        rd_bbox = rda[:, :,0, 0, :] # shape: (Nframes, Nchirps, Ntx*Nrx, Nsamples)
-        print(f"uD shape: {rd_bbox.shape}")
+        # rd_bbox = rda[:, :,0, 0, :] # shape: (Nframes, Nchirps, Ntx*Nrx, Nsamples)
+        # print(f"uD shape: {rd_bbox.shape}")
+        print('dcube rda', rda.shape)
+        dcube_uD = rda.reshape((-1, 3,4,rda.shape[-1]))
+        print('uD', dcube_uD.shape)
         # STFT
-        x = rd_bbox.reshape((-1, rd_bbox.shape[-1])) # collapse all dimensions except for the last one - range, only work for 1 TxRx pair            
-        f, t, Zxx = stft(x, nfft=args.n_uD_fft,nperseg=args.n_uD_fft,noverlap=int(args.overlap_ratio*args.n_uD_fft),window=args.uD_window,return_onesided=False,axis=0)
-        Zxx=Zxx.transpose((0,2,1))
+        # x = rd_bbox.reshape((-1, rd_bbox.shape[-1])) # collapse all dimensions except for the last one - range, only work for 1 TxRx pair            
+        f, t, Zxx = stft(dcube_uD, nfft=args.n_uD_fft,nperseg=args.stft_window_size,noverlap=int(args.overlap_ratio*args.stft_window_size),window=args.uD_window,return_onesided=False,axis=0)
+        # Zxx=Zxx.transpose((0,2,1))
         Zxx=np.fft.fftshift(Zxx,0)
-        uD=10*np.log(np.mean(np.abs(Zxx),-1) + 1e-9) 
+        print('Zxx', Zxx.shape)
+        uD = 10*np.log10(np.abs(Zxx).mean((1,2,3)) + 1e-9)
+        # uD=10*np.log(np.mean(np.abs(Zxx),-1) + 1e-9) 
         return uD  
         
     # No tracking and no cropping bbox, only FFT for RDa
@@ -142,7 +147,8 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
 def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
     # Saving the plot
     fig_width = max(6, uD.shape[1] / args.plot_scale)  # adjust scaling factor as needed
-    fig, ax = plt.subplots(figsize=(fig_width, 6))
+    # fig, ax = plt.subplots(figsize=(fig_width, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))  # Set dpi to 300 for high resolution
 
     # Plot the micro-Doppler image with adjustable aspect ratio
     im = ax.imshow(uD, aspect='auto', interpolation='none', cmap='jet', vmax=args.vmax, vmin=args.vmin)
