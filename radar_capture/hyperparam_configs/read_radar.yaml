@@ -4,7 +4,7 @@ Version: 0.0
 # Radar mean: 5.740059691579553, Radar std: 0.81151443871496
 # Camera mean: 0.474964682053377, Camera std: 0.0035290972424484326
 # Input data and config path
-folder_name: 2025May21-1310_rawdata #2025May21-1709 #2025May21-1310 #2025_May_21_shubo16s
+folder_name: 2025May21-1310_rawdata #2025May21-1709 #2025May21-1310 #2025_May_21_shubo16s  2025May21-1207 #
 folder_path: /home/shuboy/captured_data/2025_May_21/${folder_name}/
 # /home/shuboy/captured_data/Subject0/Environment0/Gesture0/
 # /bigdata/shuboy/mm-egogesture/data_RPI/
@@ -18,7 +18,7 @@ output_resize_dir: /home/shuboy/captured_data/capture_resized/${folder_name}/
 # RD_output_dir: ${folder_path}tracking_v02/RD_tmp0419/
 
 # Processing configuration
-capture_time: 1.6
+capture_time: 1.6 #1.6
 cam_fps: 30
 
 if_resize_uD: True

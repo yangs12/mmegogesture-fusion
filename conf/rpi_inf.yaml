@@ -14,11 +14,11 @@ train:
   num_workers: 1
 model:
   backbone: mobilenet-3D
-path_model: /home/shuboy/Desktop/Gesture_data/model_Fusion.pt
+path_model: /home/shuboy/Desktop/Gesture_data/concat_678_last.pt #concat_345_last.pt #model_Fusion.pt
 # model_quantized_v0_wholemodel.pt
 # model_Fusion.pt
 # model_quantized_v0.pth
-# model_Fusion.pt
+# model_Fusion.pts
 result_dir:
 
 result:
@@ -35,8 +35,12 @@ transforms:
   size_cam: 256
   mean_std:
     rad-uD:
+    # - 9.536
+    # - 0.58
     - 8.209041172527781
     - 6.378100435571438
+    # - 6.096472398227184
+    # - 0.8814453406760087
     rad-uD_Whalf:
     - 11.5463
     - 6.8219
@@ -56,6 +60,12 @@ transforms:
     - 7.6703
     - 7.2454
     cam-img:
+    # - - 0.46689714
+    #   - 0.00766404
+    # - - 0.47319401
+    #   - 0.00491781
+    # - - 0.48456499
+    #   - 0.00310633
     - - 0.4348326325416565
       - 0.1744292676448822
     - - 0.43159499764442444

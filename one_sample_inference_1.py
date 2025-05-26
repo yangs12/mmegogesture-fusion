@@ -12,7 +12,7 @@ args = OmegaConf.load("conf/rpi_inf.yaml")  # path to your config
 path_model = args.path_model
 sensor = [args.sensor.select] if isinstance(args.sensor.select, str) else args.sensor.select
 
-data_dir =  '/home/shuboy/captured_data/capture_resized/2025May21-1709/' #2025May21-1310/' #2025May21-1229/
+data_dir =  '/home/shuboy/captured_data/capture_resized/2025May21-1310_rawdata/' #2025May21-1310/' #2025May21-1229/
 # '/home/shuboy/Desktop/Gesture_data/paper_data/'
 # '/home/shuboy/captured_data/capture_resized/'
 # Get unique file names with pattern *-img.npy
@@ -50,7 +50,7 @@ correct_samples = 0
 for episode in sorted(unique_episodes):
     start = time.time()
     episode = episode.replace('-img.npy', '')
-    print(f"------Episode: {episode}")
+    # print(f"------Episode: {episode}")
     data_img = np.load(os.path.join(data_dir, f'{episode}-img.npy'))
     data_img = np.transpose(data_img, (2, 0, 1))  # Reorder dimensions from (H, W, C) to (C, H, W)
     data_uD = np.load(os.path.join(data_dir,f'{episode}-rad-uD.npy'))
@@ -79,11 +79,12 @@ for episode in sorted(unique_episodes):
         y_batch_pred = torch.argmax(y_batch_prob, axis=1)
         if y_batch_pred.item() == labels[episode_i]:
             correct_samples += 1
-        print(f'--------Predicted class: {y_batch_pred.item()}')
+        else:
+            print(f'--------Episode {episode} Predicted class: {y_batch_pred.item()}, correct class: {labels[episode_i]}')
         episode_i += 1
     end = time.time()
     times.append(end - start)
-    print(f"Time taken for episode {episode}: {end - start} seconds \n")
+    # print(f"Time taken for episode {episode}: {end - start} seconds \n")
 # Calculate and print the average time taken
 avg_time = sum(times) / len(times)
 print(f"Average time taken for all episodes: {avg_time} seconds")
