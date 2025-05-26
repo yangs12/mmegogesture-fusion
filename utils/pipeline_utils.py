@@ -1,4 +1,4 @@
-from .xwr_raw.radar_config import RadarConfig
+from .radar_config import RadarConfig
 from .radar_capture_utils import DCA1000
 import numpy as np
 # import moviepy.editor as mp
@@ -13,7 +13,6 @@ from scipy.signal import stft
 import matplotlib.pyplot as plt
 from scipy.spatial import distance
 from sklearn.cluster import DBSCAN
-# from utils.xwr_raw.dsp import aoa_music, gen_steering_vec
 
 # classes
 class radarDataLoader:
@@ -114,10 +113,6 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
             return rda_bbox # list of rda_bbox_i (cropped rda data)
 
     elif if_stft:
-        # Collapse the angle dimension, since at different range, angle FFT might have different number of bins
-        # rd_bbox = rda[:, :,0, 0, :] # shape: (Nframes, Nchirps, Ntx*Nrx, Nsamples)
-        # print(f"uD shape: {rd_bbox.shape}")
-        print('dcube rda', rda.shape)
         dcube_uD = rda.reshape((-1, 3,4,rda.shape[-1]))
         # STFT
         # x = rd_bbox.reshape((-1, rd_bbox.shape[-1])) # collapse all dimensions except for the last one - range, only work for 1 TxRx pair
@@ -178,36 +173,37 @@ def create_video(frames, path, fps=10):
 
 def gesture_detection(uD, args, uD_fps):
     # Step 1: Get indices over threshold
-    gesture_idxs = np.where(uD.mean(0) > args.uD_threshold)[0]
+    gesture_idxs = np.where(uD.mean(0) > args.process.uD_threshold)[0]
+    if len(gesture_idxs) == 0:
+        return np.array([]), np.array([]), []
 
     # Step 2: Group into segments allowing for small gaps
     gesture_segments = []
     start = gesture_idxs[0]
-
     for i in range(1, len(gesture_idxs)):
-        if gesture_idxs[i] - gesture_idxs[i - 1] > args.gesture_gap_thresh*uD_fps:
+        if gesture_idxs[i] - gesture_idxs[i - 1] > args.process.gesture_gap_thresh * uD_fps:
             end = gesture_idxs[i - 1]
             gesture_segments.append((start, end))
             start = gesture_idxs[i]
-
-    # Add the last segment
     gesture_segments.append((start, gesture_idxs[-1]))
 
-    # Optional: Filter by length
-    gesture_segments = np.array([(s, e) for s, e in gesture_segments if (e - s + 1) >= args.gesture_min_len*uD_fps and (e - s + 1) <= args.gesture_max_len*uD_fps])
+    # Filter by length
+    min_len = args.process.gesture_min_len * uD_fps
+    max_len = args.process.gesture_max_len * uD_fps
+    gesture_segments = np.array([
+        (s, e) for s, e in gesture_segments if (e - s + 1) >= min_len and (e - s + 1) <= max_len
+    ])
 
-    # Step 3: Get center index of each gesture
     center_indices = np.array([int((s + e) / 2) for s, e in gesture_segments])
+    print("Number of gestures detected:", len(gesture_segments), "Center indices (s):", center_indices / uD_fps)
 
-    print("Number of gestures detected:", len(gesture_segments))
-    # print("Segments:", gesture_segments/uD_fps, ' seconds')
-    print("Center indices:", center_indices/uD_fps, ' seconds')
-
-    # For each center index, get a list of 300 indices centered around it (150 before, 150 after)
+    # For each center index, get a segment centered around it
     center_segments = []
+    seg_len = int(args.process.center_segment_second * uD_fps)
+    half_seg = seg_len // 2
     for c in center_indices:
-        start_idx = max(0, c - args.center_segment_second * uD_fps // 2)
-        end_idx = min(c + args.center_segment_second * uD_fps // 2, uD.shape[1])
+        start_idx = max(0, c - half_seg)
+        end_idx = min(c + half_seg, uD.shape[1])
         center_segments.append([int(start_idx), int(end_idx)])
-        # print("Center segments:", start_idx/uD_fps, end_idx/uD_fps, ' seconds')
+
     return gesture_segments, center_indices, center_segments
