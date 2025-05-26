@@ -1,1 +1,0 @@
-this folder is from Emerson Sie'e Github repository `https://github.com/ConnectedSystemsLab/xwr_raw_ros`

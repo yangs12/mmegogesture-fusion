@@ -1,0 +1,45 @@
+Version: 0.0
+# Radar mean: 5.1541046236715475, Radar std: 0.8695664738892355
+# Camera mean: 0.3781050929057053, Camera std: 0.014728078748075957
+# Radar mean: 5.740059691579553, Radar std: 0.81151443871496
+# Camera mean: 0.474964682053377, Camera std: 0.0035290972424484326
+# Input data and config path
+folder_name: #2025May21-1310 #2025May21-1709 #2025May21-1310 #2025_May_21_shubo16s
+folder_path: /bigdata/data/datasets/internal/gesture/raw_capture/Subject3/Collection1/Environment1/Gesture10/
+# /home/shuboy/workspace/mmegogesture-fusion/
+# /bigdata/data/datasets/internal/gesture/raw_capture/Subject3/Collection1/Environment1/Gesture1/
+# /home/shuboy/captured_data/2025_May_21/${folder_name}/
+# /home/shuboy/captured_data/Subject0/Environment0/Gesture0/
+# /bigdata/shuboy/mm-egogesture/data_RPI/
+radar_data_path: ${folder_path}radar/
+radar_file_name: 
+radar_config_path: "./waveform_configs/xwr68xx_gesture.cfg"  
+output_dir: /home/shuboy/workspace/mmegogesture-fusion
+# /home/shuboy/captured_data/uD_128fft/${folder_name}/
+output_resize_dir: /home/shuboy/workspace/mmegogesture-fusion
+# /home/shuboy/captured_data/capture_resized/${folder_name}/
+# # Output directories
+# output_dir: ${folder_path}tracking_v02/csv_files_tmp0419/ 
+# RD_output_dir: ${folder_path}tracking_v02/RD_tmp0419/
+
+# Processing configuration
+capture_time: 10 #5 #1.6
+cam_fps: 30
+
+if_resize_uD: False
+if_resize_img: False
+uD_width: 512
+uD_height: 128
+img_width: 256
+img_height: 256
+
+# n_angle_fft: 1024
+# micro-Doppler configuration and plotting
+n_uD_fft: 128 # 128 
+stft_window_size: 64
+uD_window: hamming # hann  # hamming 
+overlap_ratio: 0.875 # 0.888 for 3Tx
+#2Tx 4Rx: 0.93 for fft256 #0.86 for fft128 #0.875- 7/8; if 0.86, then step size is 18 to compensate 28 fps
+plot_scale: 50
+vmax: 40 #20 #15 for 2TX rda_bbox  
+vmin: 0 #-15 #-30 for 2TX rda_bbox 
