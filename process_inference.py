@@ -137,7 +137,7 @@ def main(args: DictConfig) -> None:
                 print(f'--------Segment {i} Predicted class: {y_batch_pred.item()} {gesture_map[y_batch_pred.item()]}')
 
         end_time = time.time()
-        if gesture_segments:
+        if len(gesture_segments) > 0:
             times.append((end_time - start_time) / len(gesture_segments))
             print(f"\n Time taken per seg: {(end_time - start_time)/len(gesture_segments)} seconds")
 
