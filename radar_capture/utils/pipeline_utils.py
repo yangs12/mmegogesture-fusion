@@ -115,14 +115,17 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
 
     elif if_stft:
         # Collapse the angle dimension, since at different range, angle FFT might have different number of bins
-        rd_bbox = rda[:, :,0, 0, :] # shape: (Nframes, Nchirps, Ntx*Nrx, Nsamples)
-        print(f"uD shape: {rd_bbox.shape}")
+        # rd_bbox = rda[:, :,0, 0, :] # shape: (Nframes, Nchirps, Ntx*Nrx, Nsamples)
+        # print(f"uD shape: {rd_bbox.shape}")
+        print('dcube rda', rda.shape)
+        dcube_uD = rda.reshape((-1, 3,4,rda.shape[-1]))
         # STFT
-        x = rd_bbox.reshape((-1, rd_bbox.shape[-1])) # collapse all dimensions except for the last one - range, only work for 1 TxRx pair            
-        f, t, Zxx = stft(x, nfft=args.n_uD_fft,nperseg=args.n_uD_fft,noverlap=int(args.overlap_ratio*args.n_uD_fft),window=args.uD_window,return_onesided=False,axis=0)
-        Zxx=Zxx.transpose((0,2,1))
+        # x = rd_bbox.reshape((-1, rd_bbox.shape[-1])) # collapse all dimensions except for the last one - range, only work for 1 TxRx pair            
+        f, t, Zxx = stft(dcube_uD, nfft=args.n_uD_fft,nperseg=args.stft_window_size,noverlap=int(args.overlap_ratio*args.stft_window_size),window=args.uD_window,return_onesided=False,axis=0)
+        # Zxx=Zxx.transpose((0,2,1))
         Zxx=np.fft.fftshift(Zxx,0)
-        uD=10*np.log(np.mean(np.abs(Zxx),-1) + 1e-9) 
+        uD = 20*np.log10(np.abs(Zxx).mean((1,2,3)) + 1e-9)
+        # uD=10*np.log(np.mean(np.abs(Zxx),-1) + 1e-9) 
         return uD  
         
     # No tracking and no cropping bbox, only FFT for RDa
@@ -142,10 +145,11 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
 def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
     # Saving the plot
     fig_width = max(6, uD.shape[1] / args.plot_scale)  # adjust scaling factor as needed
-    fig, ax = plt.subplots(figsize=(fig_width, 6))
+    # fig, ax = plt.subplots(figsize=(fig_width, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))  # Set dpi to 300 for high resolution
 
     # Plot the micro-Doppler image with adjustable aspect ratio
-    im = ax.imshow(uD, aspect='auto', interpolation='none', cmap='jet', vmax=args.vmax, vmin=args.vmin)
+    im = ax.imshow(uD, aspect='auto', cmap='jet', vmax=args.vmax, vmin=args.vmin)
     fig.colorbar(im, ax=ax)
 
     if track_id is not None:
@@ -154,13 +158,16 @@ def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
         ax.set_title(f'{radar_file_name} micro-Doppler')
     ax.set_xlabel('Time (s)')
     ax.set_ylabel('Doppler (m/s)')
-    ticks = np.linspace(0, uD.shape[1], 11)
-    tick_labels = np.round(ticks / args.uD_bins_ps, 2)
-    plt.xticks(ticks, tick_labels)
-    plt.yticks(np.linspace(0, args.n_uD_fft, 11), np.round(np.linspace(uD_axis[0], uD_axis[-1], 11), 2))
+    # ticks = np.linspace(0, uD.shape[1], 11)
+    # tick_labels = np.round(ticks / args.uD_bins_ps, 2)
+    # plt.xticks(ticks, tick_labels)
+    # plt.yticks(np.linspace(0, args.n_uD_fft, 11), np.round(np.linspace(uD_axis[0], uD_axis[-1], 11), 2))
     plt.gca().invert_yaxis()
     plt.tight_layout(pad=0.5)
-    plt.savefig(os.path.join(args.output_dir, 'tracks_uD_figs', f'{radar_file_name}_track_{track_id}.png'))
+    if track_id is not None:
+        plt.savefig(os.path.join(args.output_dir, 'tracks_uD_figs', f'{radar_file_name}_track_{track_id}.png'))
+    else:
+        plt.savefig(os.path.join(args.output_dir, f'{radar_file_name}.png'))
     plt.close()
 
 
@@ -168,3 +175,39 @@ def create_video(frames, path, fps=10):
     clips = [mp.ImageClip(frame).set_duration(1/fps) for frame in frames]
     video = mp.concatenate_videoclips(clips, method="compose")
     video.write_videofile(path, fps=fps)
+
+def gesture_detection(uD, args, uD_fps):
+    # Step 1: Get indices over threshold
+    gesture_idxs = np.where(uD.mean(0) > args.uD_threshold)[0]
+
+    # Step 2: Group into segments allowing for small gaps
+    gesture_segments = []
+    start = gesture_idxs[0]
+
+    for i in range(1, len(gesture_idxs)):
+        if gesture_idxs[i] - gesture_idxs[i - 1] > args.gesture_gap_thresh*uD_fps:
+            end = gesture_idxs[i - 1]
+            gesture_segments.append((start, end))
+            start = gesture_idxs[i]
+
+    # Add the last segment
+    gesture_segments.append((start, gesture_idxs[-1]))
+
+    # Optional: Filter by length
+    gesture_segments = np.array([(s, e) for s, e in gesture_segments if (e - s + 1) >= args.gesture_min_len*uD_fps and (e - s + 1) <= args.gesture_max_len*uD_fps])
+
+    # Step 3: Get center index of each gesture
+    center_indices = np.array([int((s + e) / 2) for s, e in gesture_segments])
+
+    print("Number of gestures detected:", len(gesture_segments))
+    # print("Segments:", gesture_segments/uD_fps, ' seconds')
+    print("Center indices:", center_indices/uD_fps, ' seconds')
+
+    # For each center index, get a list of 300 indices centered around it (150 before, 150 after)
+    center_segments = []
+    for c in center_indices:
+        start_idx = max(0, c - args.center_segment_second * uD_fps // 2)
+        end_idx = min(c + args.center_segment_second * uD_fps // 2, uD.shape[1])
+        center_segments.append([int(start_idx), int(end_idx)])
+        # print("Center segments:", start_idx/uD_fps, end_idx/uD_fps, ' seconds')
+    return gesture_segments, center_indices, center_segments

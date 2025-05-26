@@ -1,0 +1,76 @@
+sensor:
+  select:
+  - rad-uD
+  - cam-img
+  win_cam: 80
+  win_rad: 512
+  t_snapshot: 2.667
+  fps_cam: 30
+train:
+  n_class: 12
+  pretrain: true
+  traintest_split: subject-3_4_5
+  batch_size: 16
+  num_workers: 1
+model:
+  backbone: mobilenet-3D
+data_dir: /bigdata/shuboy/mm-egogesture/preprocessed_data/out_distribution_gestures/resized_data/
+path_model: /bigdata/shuboy/mm-egogesture/models/models_0512/concat_678_last.pt
+# /home/shuboy/Desktop/Gesture_data/concat_678_last.pt #concat_345_last.pt #model_Fusion.pt
+# model_quantized_v0_wholemodel.pt
+# model_Fusion.pt
+# model_quantized_v0.pth
+# model_Fusion.pts
+result_dir:
+
+# result:
+#   path_des: /home/shuboy/Desktop/Gesture_data/des_testonefile.csv
+#   path_data: /home/shuboy/Desktop/Gesture_data/paper_data/
+
+transforms:
+  t_actual: 1.6
+  t_spare: 0.2
+  resample_cam: 16
+  cropratio_uD: 1.0
+  size_rad_D: 256
+  size_rad_T: 512
+  size_cam: 256
+  mean_std:
+    rad-uD:
+    # - 9.536
+    # - 0.58
+    - 8.209041172527781
+    - 6.378100435571438
+    # - 6.096472398227184
+    # - 0.8814453406760087
+    rad-uD_Whalf:
+    - 11.5463
+    - 6.8219
+    rad-uD_Wdouble:
+    - 5.0373
+    - 6.2107
+    rad-A:
+    - 40.2172
+    - 7.3238
+    rad-R:
+    - 52.2055
+    - 4.7976
+    rad-D:
+    - 46.6549
+    - 23.3134
+    rad-uD_channel:
+    - 7.6703
+    - 7.2454
+    cam-img:
+    # - - 0.46689714
+    #   - 0.00766404
+    # - - 0.47319401
+    #   - 0.00491781
+    # - - 0.48456499
+    #   - 0.00310633
+    - - 0.4348326325416565
+      - 0.1744292676448822
+    - - 0.43159499764442444
+      - 0.1614103764295578
+    - - 0.42124682664871216
+      - 0.1674143671989441
