@@ -14,7 +14,7 @@ preprocess:
 train:
   learning_rate: 1e-4
   weight_decay: 0.01
-  epoch: 50
+  epoch: 3
   batch_size: 16
   num_workers: 4
   delta: 0.01  # for loss
@@ -30,7 +30,7 @@ model:
 wandb:
   use_wandb: True
   log_all: False      # log confusion, ROC, and prediction table together 
-  project: '0512_att_vs_concat'
+  project: '0523_concat'
 
 transforms:
   t_actual: 1.6        
@@ -57,8 +57,8 @@ result:
   save_model: True
   path_data: '/bigdata/shuboy/mm-egogesture/Gesture_processed_public'
   path_des: '/home/jchang13/fusion/mmegogesture-fusion/downloads/Metadata/des_public.csv'
-  path_save_vis: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/0512_att_vs_concat/'
-  path_save_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0512_att_vs_concat'
+  path_save_vis: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/0523_concat/'
+  path_save_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0523_concat'
   name: 'concat_345'
   note: 'Temp'
   labels: ['1','2','3','4','5','6','7','8','9','10','11','12']

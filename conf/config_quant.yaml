@@ -1,0 +1,13 @@
+# path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0520_quant_server_try2/quant_try2_latest.pt'
+# path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/config_inference2.yaml'
+# path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
+
+sensor: 
+  select: ['rad-uD']
+model:
+  backbone: 'mobilenet-2D'
+train:
+  pretrain: True
+  n_class: 12
+
+model_path:  '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0521_quant_server_try3/quant_try3_last.pt'

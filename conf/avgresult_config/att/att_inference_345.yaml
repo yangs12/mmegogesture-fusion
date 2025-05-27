@@ -1,0 +1,4 @@
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0512_att_vs_concat/att_345_last.pt'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/att_config/att_345.yaml'
+path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
+csv_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/csv/att/att_345.csv'

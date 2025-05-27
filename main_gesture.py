@@ -12,9 +12,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
 from utils.trainer import Trainer
 from utils.dataloader import *
-from model import mobileVit, main_Net, mainattention_Net, mainlate_Net
+from model import mainattention_Net, mainlate_Net, main_Net
 
-@hydra.main(version_base=None, config_path="conf/late_config", config_name="late_678")
+@hydra.main(version_base=None, config_path="conf/concat_config", config_name="concat_0129")
 def main(args: DictConfig) -> None:
   config = OmegaConf.to_container(args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -63,9 +63,9 @@ def main(args: DictConfig) -> None:
           "delta": args.train.delta,
           }
   
-  if 'mobileVit' in args.model.backbone:
-    model = mobileVit.main_Net(args).to(device)
-  elif 'cross' in args.model.fusion:
+  # if 'mobileVit' in args.model.backbone:
+  #   model = mobileVit2.main_Net(args).to(device)
+  if 'cross' in args.model.fusion:
     model = mainattention_Net.MyNet_Main(args,device)
   elif 'late' in args.model.fusion:
     model = mainlate_Net.MyNet_Main(args,device)

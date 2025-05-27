@@ -1,0 +1,3 @@
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0521_quant_server_try3/quant_try3_last.pt'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/config_gesture_quant.yaml'
+path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
