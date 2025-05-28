@@ -1,0 +1,5 @@
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0525_late/'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/quant/late_config/late_0129.yaml'
+path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
+csv_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/csv/quant/late/late_0129.csv'
+quantized: True

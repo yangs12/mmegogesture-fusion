@@ -1,0 +1,5 @@
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0525_cam/'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/quant/camonly_config/camonly_345.yaml'
+path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
+csv_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/csv/quant/camonly/camonly_345.csv'
+quantized: True
