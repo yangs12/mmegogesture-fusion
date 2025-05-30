@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 import einops
 from utils.dataloader import *
 from utils.trainer_quant import Trainer
-from model.classifier_head import FusionClassifier
+from model.classifier_head import FusionClassifierOptions
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -54,9 +54,7 @@ def run_model_list(x_batch,fusion_method,model_list):
     return y_batch_pred
 
 
-
-
-@hydra.main(version_base=None,  config_path="conf/quant/camonly_config", config_name="camonly_678")
+@hydra.main(version_base=None, config_path="conf/quant2/camonly_config", config_name="camonly_678")
 def main(args: DictConfig) -> None:
     config = OmegaConf.to_container(args)
     device = torch.device('cpu')
@@ -99,7 +97,7 @@ def main(args: DictConfig) -> None:
         model2.classifier = nn.Identity()
         model2.to(device)
 
-        fusion_classifier = FusionClassifier(1280 * 2, args.train.n_class).to(device)
+        fusion_classifier = FusionClassifierOptions(1280 * 2, args.train.n_class,dropout=True, batchnorm=True).to(device)
 
         model_list = [model1, model2, fusion_classifier]
     elif 'camonly' in args.model.fusion:
@@ -107,7 +105,7 @@ def main(args: DictConfig) -> None:
         model1.classifier = nn.Identity()
         model1.to(device)
 
-        fusion_classifier = FusionClassifier(1280, args.train.n_class).to(device)
+        fusion_classifier = FusionClassifierOptions(1280, args.train.n_class,dropout=True, batchnorm=True).to(device)
 
         model_list = [model1, fusion_classifier]
     elif 'late' in args.model.fusion:
@@ -124,13 +122,23 @@ def main(args: DictConfig) -> None:
     # load the models
     for i, model in enumerate(model_list):
         model_name = os.path.join(args.result.path_save_model,args.result.name+'_'+str(i)+'_last.pt')
+        # hardcoded now
+        # if 'camonly' in args.model.fusion or 'concat' in args.model.fusion and i == len(model_list) - 1:
+        #     clean_state_dict = {k: v for k, v in model_name.items() if "running_" not in k and "num_batches_tracked" not in k and "fc.1" not in k and "fc.5" not in k}
+        #     model.load_state_dict(torch.load(clean_state_dict, map_location=device))
+        # else:
+        #     model.load_state_dict(torch.load(model_name, map_location=device))
         model.load_state_dict(torch.load(model_name, map_location=device))
-
         model.eval()
         model.to(device)
 
         if hasattr(model, 'fuse_model'):
             model.fuse_model()  # Fuse layers if applicable
+        else:
+            torch.quantization.fuse_modules(model.fc, [
+                ['0', '1'],  # Linear + BatchNorm
+                ['4', '5'],  # Linear + BatchNorm
+                ], inplace=True)
 
 
         # setup quantization config and prepare
@@ -169,14 +177,14 @@ def main(args: DictConfig) -> None:
         torch.save(model.state_dict(), model_name)
 
     
-    # inference
-    for model in model_list:
-        model.eval()
+    # # inference
+    # for model in model_list:
+    #     model.eval()
 
-    # ----- STEP 7: Inference test ----
-    loss_fn=torch.nn.CrossEntropyLoss().to(device)
-    test_acc, test_loss, test_y, test_y_pred, test_y_prob, test_des = trainer.test(data_test, device, model_list, loss_fn, 0)
-    print(f"Test Accuracy: {test_acc:.4f}")
+    # # ----- STEP 7: Inference test ----
+    # loss_fn=torch.nn.CrossEntropyLoss().to(device)
+    # test_acc, test_loss, test_y, test_y_pred, test_y_prob, test_des = trainer.test(data_test, device, model_list, loss_fn, 0)
+    # print(f"Test Accuracy: {test_acc:.4f}")
 
 if __name__ == '__main__':
     main()

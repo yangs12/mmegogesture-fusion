@@ -1,0 +1,5 @@
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0528_concat/'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/quant2/concat_config/concat_678.yaml'
+path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
+csv_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/csv/quant2/concat/concat_678.csv'
+quantized: True

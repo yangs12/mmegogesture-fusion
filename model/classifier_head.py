@@ -50,3 +50,30 @@ class FusionClassifier(nn.Module):
         x = self.fc(x)
         x = self.dequant(x)
         return x
+
+# similar to the original FusionClassifier, but with dropout and batchnorm options
+class FusionClassifierOptions(nn.Module):
+    def __init__(self, input_dimension, num_classes, dropout=True, batchnorm=False):
+        super().__init__()
+        self.quant = torch.quantization.QuantStub()
+        layers = []
+        layers.append(nn.Linear(input_dimension, 256))
+        if batchnorm: layers.append(nn.BatchNorm1d(256))
+        layers.append(nn.ReLU())
+
+        if dropout: layers.append(nn.Dropout(0.5))
+        layers.append(nn.Linear(256, 128))
+        if batchnorm: layers.append(nn.BatchNorm1d(128))
+        layers.append(nn.ReLU())
+
+        if dropout: layers.append(nn.Dropout(0.5))
+        layers.append(nn.Linear(128, num_classes))
+        
+        self.fc = nn.Sequential(*layers)
+        self.dequant = torch.quantization.DeQuantStub()
+
+    def forward(self, x):
+        x = self.quant(x)
+        x = self.fc(x)
+        x = self.dequant(x)
+        return x
