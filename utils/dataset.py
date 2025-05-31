@@ -7,28 +7,28 @@ from torch.utils.data import Dataset
 import os
 import pandas as pd
 import numpy as np
-import h5py
+# import h5py
 import pickle
 import joblib
 from scipy import signal
 from .result_utils import *
 
-def read_h5_basic(path):
-    """Read HDF5 files
+# def read_h5_basic(path):
+#     """Read HDF5 files
 
-    Args:
-        path (string): a path of a HDF5 file
+#     Args:
+#         path (string): a path of a HDF5 file
 
-    Returns:
-        radar_dat: micro-Doppler data with shape (256, 128, 2) as (1, time, micro-Doppler, 2 radar channel)
-        des: information for radar data
-    """
-    hf = h5py.File(path, 'r')
-    radar_dat = np.array(hf.get('radar_dat'))
-    radar_rng = np.array(hf.get('radar_rng'))
-    des = dict(hf.attrs)
-    hf.close()
-    return radar_dat, radar_rng, des
+#     Returns:
+#         radar_dat: micro-Doppler data with shape (256, 128, 2) as (1, time, micro-Doppler, 2 radar channel)
+#         des: information for radar data
+#     """
+#     hf = h5py.File(path, 'r')
+#     radar_dat = np.array(hf.get('radar_dat'))
+#     radar_rng = np.array(hf.get('radar_rng'))
+#     des = dict(hf.attrs)
+#     hf.close()
+#     return radar_dat, radar_rng, des
 
 class Dataset_Gesture(Dataset):
     """

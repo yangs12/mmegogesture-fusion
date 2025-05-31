@@ -1,8 +1,0 @@
-Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
-/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/home/jchang13/miniconda3/envs/mmegogesture/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=MobileNet_V2_Weights.IMAGENET1K_V1`. You can also use `weights=MobileNet_V2_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-Using cache found in /home/jchang13/.cache/torch/hub/pytorch_vision_v0.10.0
-Step: 96. Epoch: 1/1. Iteration: 96/96. Total loss: 2.45382.: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 96/96 [00:15<00:00,  6.19it/s]
-test acc  0.2654867470264435 test_loss  2.4394578478580478

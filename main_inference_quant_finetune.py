@@ -4,7 +4,7 @@ Main File
 import os
 import sys
 import hydra
-import wandb
+# import wandb
 from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -50,7 +50,7 @@ def main(args: DictConfig) -> None:
                               ResizeTensor(size_rad=(args.transforms.size_rad_D,args.transforms.size_rad_T), size_cam=args.transforms.size_cam, apply=sensor),
                           ]}
 
-  data_train, data_test = LoadDataset_Gesture(args, transform_list,change_channel=True)
+  data_train, data_test = LoadDataset_Gesture(args, transform_list, change_channel=True)
 
   quant_type = 'qnnpack'
   torch.backends.quantized.engine = quant_type
