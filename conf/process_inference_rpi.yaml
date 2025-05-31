@@ -1,0 +1,105 @@
+process:
+  folder: 2025May30-1853/
+  folder_path: /home/shuboy/captured_data/2025_May_30/${process.folder}
+  # /home/shuboy/captured_data/2025_May_21/2025May21-1207_shubo/ #2025May21-1207_Shubo/ #2025May21-1200_Justin/ #2025May21-1207_Shubo/
+  # 2025May21-1305_Shubo1.6s/
+  radar_data_path: ${process.folder_path}radar/
+  radar_file_name: 
+  # activity: 11
+  uD_threshold: 10 #9.5 # 10 shubo 9 justin
+  radar_config_path: "./radar_capture/waveform_configs/xwr68xx_gesture.cfg"  
+
+  # # # Output directories
+  output_dir: /home/shuboy/captured_data/capture_resized/${process.folder}
+  output_resize_dir: /home/shuboy/captured_data/uD_128fft/${process.folder}
+
+  # Processing configuration
+  capture_time: 15 #1.6 #
+
+  if_resize_uD: True
+  if_resize_img: True
+  if_save_img: False
+  if_save_uD: False
+
+  gesture_gap_thresh: 0.1 #0.03
+  gesture_max_len: 1.6
+  gesture_min_len: 0.5 
+  center_segment_second: 1.6
+
+  # Fixed params
+  cam_fps: 30
+  uD_width: 512
+  uD_height: 128
+  img_width: 256
+  img_height: 256
+  n_uD_fft: 128 
+  stft_window_size: 64
+  uD_window: hamming # hann  
+  overlap_ratio: 0.875 
+  plot_scale: 50
+  vmax: 40 
+  vmin: 0 
+
+
+sensor:
+  select:
+  - rad-uD
+  - cam-img
+  win_cam: 80
+  win_rad: 512
+  t_snapshot: 2.667
+  fps_cam: 30
+train:
+  n_class: 12
+  pretrain: true
+  traintest_split: subject-3_4_5
+  # batch_size: 16
+  # num_workers: 1
+model:
+  backbone: mobilenet-3D
+
+data_dir:  /home/shuboy/captured_data/capture_resized/${process.folder_path}
+path_model: /home/shuboy/Desktop/Gesture_data/concat_345_last.pt
+
+result_dir: /home/shuboy/captured_data/results/
+# result:
+#   path_des: /home/shuboy/Desktop/Gesture_data/des_testonefile.csv
+#   path_data: /home/shuboy/Desktop/Gesture_data/paper_data/
+
+transforms:
+  t_actual: 1.6
+  t_spare: 0.2
+  resample_cam: 16
+  cropratio_uD: 1.0
+  size_rad_D: 256
+  size_rad_T: 512
+  size_cam: 256
+  mean_std:
+    rad-uD:
+    - 8.209041172527781
+    - 6.378100435571438
+    rad-uD_Whalf:
+    - 11.5463
+    - 6.8219
+    rad-uD_Wdouble:
+    - 5.0373
+    - 6.2107
+    rad-A:
+    - 40.2172
+    - 7.3238
+    rad-R:
+    - 52.2055
+    - 4.7976
+    rad-D:
+    - 46.6549
+    - 23.3134
+    rad-uD_channel:
+    - 7.6703
+    - 7.2454
+    cam-img:
+    - - 0.4348326325416565
+      - 0.1744292676448822
+    - - 0.43159499764442444
+      - 0.1614103764295578
+    - - 0.42124682664871216
+      - 0.1674143671989441

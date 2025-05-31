@@ -14,7 +14,7 @@ train:
   num_workers: 1
 model:
   backbone: mobilenet-3D
-path_model: /home/shuboy/Desktop/Gesture_data/concat_678_last.pt #concat_345_last.pt #model_Fusion.pt
+path_model: /home/shuboy/Desktop/Gesture_data/concat_345_last.pt #concat_345_last.pt #model_Fusion.pt
 # model_quantized_v0_wholemodel.pt
 # model_Fusion.pt
 # model_quantized_v0.pth
