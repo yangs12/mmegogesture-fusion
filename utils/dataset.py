@@ -39,11 +39,13 @@ class Dataset_Gesture(Dataset):
                  data_dir,
                  flag,
                  transform=None,
+                 change_channel=False,
                  ):
         self.des = des
         self.data_dir = data_dir
         self.flag = flag
         self.transform = transform
+        self.change_channel = change_channel
 
         self.sensor = [args.sensor.select] if str(type(args.sensor.select))=="<class 'str'>" else args.sensor.select
 
@@ -58,13 +60,15 @@ class Dataset_Gesture(Dataset):
         data = {}
         for sensor_sel in self.sensor:
             sensor_name = sensor_sel
-            data[sensor_sel] = sensordata_load((episode, order, sensor_name), self.data_dir)
+            data[sensor_sel] = sensordata_load((episode, order, sensor_name), self.data_dir,self.change_channel)
         data['des'] = des_snapshot
 
         if self.transform:
             data = self.transform(data)
-
-        label = int(gesture.split('e')[-1])-1
+        if self.change_channel:
+            label = int(gesture.split('e')[-1])
+        else:
+            label = int(gesture.split('e')[-1])-1
         del(data['des'])
         output = []
         output = [data[key] for key in data.keys()]

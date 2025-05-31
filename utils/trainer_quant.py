@@ -132,6 +132,7 @@ class Trainer:
                                                 eta_min = 0.01*self.args.train.learning_rate) # Minimum learning rate
 
         Epoch_num = self.args.train.epoch
+        print("Total Epochs: ", Epoch_num)
         test_loss_best = 100
         test_acc_best  = 0
         step = 0

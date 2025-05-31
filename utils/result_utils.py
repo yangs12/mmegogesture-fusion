@@ -19,7 +19,7 @@ from PIL import Image
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-def sensordata_load(dat_info, data_dir):
+def sensordata_load(dat_info, data_dir,change_channel=False):
     (episode, order, sensor_name) = dat_info
     if 'v2' in data_dir:    # 'v2'
         if 'vid' in sensor_name:
@@ -40,6 +40,9 @@ def sensordata_load(dat_info, data_dir):
             return dat_vid.transpose(3,0,1,2)
         elif 'img' in sensor_name:
             data_path = os.path.join(data_dir,f'{episode}-{order}-img.npy')
+            if change_channel:
+                dat_img = np.load(data_path)
+                return dat_img.transpose(2,0,1)
             return np.load(data_path)
         else:
             data_path = os.path.join(data_dir,f'{episode}-{order}-{sensor_name}.npy')
@@ -75,6 +78,22 @@ def split_traintest(des_clean, mode):
         des_train = des_clean[val_train].to_dict('records')
         des_test = des_clean[val_test].to_dict('records')
         assert len(des_clean)==(len(des_train)+len(des_test))
+    elif mode=='gesture':
+        des_clean = pd.DataFrame(des_clean)
+        gestures = [f'Gesture{i}' for i in range(12)]
+        val_test_indices = []
+        for gesture in gestures:
+            gesture_indices = des_clean[des_clean['Gesture'] == gesture].index.tolist()
+            sampled_indices = random.sample(gesture_indices, min(10, len(gesture_indices)))
+            val_test_indices.extend(sampled_indices)
+        val_test = des_clean.index.isin(val_test_indices)
+        val_train = ~val_test
+        des_train = des_clean[val_train].to_dict('records')
+        des_test = des_clean[val_test].to_dict('records')
+        assert len(des_clean)==(len(des_train)+len(des_test))
+        # print(des_clean[val_train]['Gesture'].value_counts())
+        # print(des_clean[val_test]['Gesture'].value_counts())
+
         
     return des_train, des_test
 

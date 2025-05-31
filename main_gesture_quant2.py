@@ -16,7 +16,7 @@ from utils.dataloader import *
 from model.classifier_head import FusionClassifierOptions
 from torch import nn
 from torchvision.models.quantization import mobilenet_v2
-@hydra.main(version_base=None, config_path="conf/quant2/camonly_config", config_name="camonly_0129")
+@hydra.main(version_base=None, config_path="conf/quant2/late_config", config_name="late_0129")
 def main(args: DictConfig) -> None:
   config = OmegaConf.to_container(args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

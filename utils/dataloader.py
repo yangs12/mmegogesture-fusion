@@ -45,7 +45,7 @@ def Visualize_data(args):       # (TODO)
             #     show_radar(data['rad-uD_channel'], path=args.result.path_save_vis+'/vis_rad-uD/', name=f'{env}-{sub}-{gesture}-{ord}.jpg')
         data['des'] = des_snapshot
 
-def Analyze_statistics(args, transform_list):
+def Analyze_statistics(args, transform_list,change_channel=False):
     """
     Preprocess & Save the pre-processed data
     """
@@ -64,6 +64,8 @@ def Analyze_statistics(args, transform_list):
         data_all[sensor_sel] = []
     
     print(f'Calculate Statistics')
+    if 'Episode' not in des_clean.columns:
+        des_clean = des_clean.reset_index(drop=False)
     for idx in tqdm(range(len(des_clean))):
         des_snapshot = des_clean.iloc[idx]
         episode = des_snapshot['Episode']
@@ -73,7 +75,7 @@ def Analyze_statistics(args, transform_list):
         for sensor_sel in sensor:
             # time_s = time.time()
             sensor_name = sensor_sel
-            data[sensor_sel] = sensordata_load((episode, order, sensor_name), data_dir)
+            data[sensor_sel] = sensordata_load((episode, order, sensor_name), data_dir,change_channel)
             # print(f'{sensor_sel}: {time.time()-time_s}')
         data['des'] = des_snapshot
         data = compose_transform(data)
@@ -90,10 +92,12 @@ def Analyze_statistics(args, transform_list):
             args.transforms.mean_std[sensor_sel] = [[data_all[sensor_sel][:,channel,...].mean().item(), data_all[sensor_sel][:,channel,...].std().item()] 
                                                     for channel in range(3)]
         print(f'Updated mean and std of {sensor_sel}')
+        print(sensor_sel)
+        print(f'Mean: {args.transforms.mean_std[sensor_sel][0]}, Std: {args.transforms.mean_std[sensor_sel][1]}')
     return
 
 
-def LoadDataset_Gesture(args, transform_list):
+def LoadDataset_Gesture(args, transform_list,change_channel=False):
     """Do transforms on radar data and labels. Load the data from 2 radar sensors.
 
     Args:
@@ -105,6 +109,8 @@ def LoadDataset_Gesture(args, transform_list):
     val_idx=((des_all['Remark_Snapshot']!='Issue')
             )
     des_clean = des_all[val_idx]
+    if 'Episode' not in des_clean.columns:
+        des_clean = des_clean.reset_index(drop=False)
     sensor = [args.sensor.select] if str(type(args.sensor.select))=="<class 'str'>" else args.sensor.select
 
     # train-test split
@@ -121,6 +127,7 @@ def LoadDataset_Gesture(args, transform_list):
                                 data_dir=args.result.path_data,
                                 flag='train',
                                 transform = transforms.Compose(transform_train), 
+                                change_channel=change_channel
                                 )
     data_test  =  Dataset_Gesture(
                                 args=args,  
@@ -128,6 +135,7 @@ def LoadDataset_Gesture(args, transform_list):
                                 data_dir=args.result.path_data,
                                 flag='test',
                                 transform = transforms.Compose(transform_test),
+                                change_channel=change_channel
                                 )
 
     data_train = DataLoader(data_train, collate_fn=my_collate_fn, batch_size=args.train.batch_size, shuffle=True, num_workers=args.train.num_workers)
