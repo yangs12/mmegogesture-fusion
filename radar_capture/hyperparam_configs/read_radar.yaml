@@ -1,11 +1,12 @@
 Version: 0.0
 
 # Input data and config path
-folder_path: /bigdata/shuboy/mm-egogesture/data_RPI/2025_May_21/2025May21-1200_Justin/ #2025May21-1207_Shubo/
+folder_path: /bigdata/shuboy/mm-egogesture/data_RPI/2025_May_26/2025May26-1847_justin/
+# /bigdata/shuboy/mm-egogesture/data_RPI/2025_May_26/2025May26-1811_shubo/ #2025May21-1207_Shubo/
 # 2025May21-1305_Shubo1.6s/
 radar_data_path: ${folder_path}radar/
-radar_file_name: 
-activity: 11
+radar_file_name: 20250526184821
+activity: 0
 uD_threshold: 9 # 10 shubo 9 justin
 radar_config_path: "./waveform_configs/xwr68xx_gesture.cfg"  
 
@@ -14,13 +15,14 @@ output_dir: /bigdata/shuboy/mm-egogesture/preprocessed_data/out_distribution_ges
 output_resize_dir: /bigdata/shuboy/mm-egogesture/preprocessed_data/out_distribution_gestures/resized_data/
 
 # Processing configuration
-capture_time: 10 #1.6 #
+capture_time: 24 #1.6 #
 cam_fps: 30
 
 if_resize_uD: False
 if_resize_img: False
 if_save_img: False
 if_save_uD: False
+save_alluD_segments: True
 uD_width: 512
 uD_height: 128
 img_width: 256

@@ -121,7 +121,7 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
         dcube_uD = rda.reshape((-1, 3,4,rda.shape[-1]))
         # STFT
         # x = rd_bbox.reshape((-1, rd_bbox.shape[-1])) # collapse all dimensions except for the last one - range, only work for 1 TxRx pair
-        f, t, Zxx = stft(dcube_uD, nfft=args.process.n_uD_fft,nperseg=args.process.stft_window_size,noverlap=int(args.process.overlap_ratio*args.process.stft_window_size),window=args.process.uD_window,return_onesided=False,axis=0)
+        f, t, Zxx = stft(dcube_uD, nfft=args.n_uD_fft,nperseg=args.n_uD_fft,noverlap=int(args.overlap_ratio*args.n_uD_fft),window=args.uD_window,return_onesided=False,axis=0)
         # Zxx=Zxx.transpose((0,2,1))
         Zxx=np.fft.fftshift(Zxx,0)
         uD = 20*np.log10(np.abs(Zxx).mean((1,2,3)) + 1e-9)
@@ -142,9 +142,9 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
 
         return RDa, noise_floor_db, noise_range_db
 
-def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
+def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None, segments=None, center_indices=None):
     # Saving the plot
-    fig_width = max(6, uD.shape[1] / args.plot_scale)  # adjust scaling factor as needed
+    fig_width = max(6, uD.shape[1] / args.process.plot_scale)  # adjust scaling factor as needed
     # fig, ax = plt.subplots(figsize=(fig_width, 6))
     fig, ax = plt.subplots(figsize=(10, 6))  # Set dpi to 300 for high resolution
 
@@ -156,6 +156,14 @@ def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
         ax.set_title(f'{radar_file_name} track ID {track_id} micro-Doppler')
     else:
         ax.set_title(f'{radar_file_name} micro-Doppler')
+    if segments is not None:
+        for segment in segments:
+            start, end = segment
+            ax.axvline(x=start, color='red', linestyle='--', linewidth=1)
+            ax.axvline(x=end, color='red', linestyle='--', linewidth=1)
+        for center in center_indices:
+            ax.axvline(x=center, color='green', linestyle='--', linewidth=1)
+    
     ax.set_xlabel('Time (s)')
     ax.set_ylabel('Doppler (m/s)')
     # ticks = np.linspace(0, uD.shape[1], 11)
@@ -205,9 +213,13 @@ def gesture_detection(uD, args, uD_fps):
 
     # For each center index, get a list of 300 indices centered around it (150 before, 150 after)
     center_segments = []
+    center_segments_videos = []
     for c in center_indices:
         start_idx = max(0, c - args.center_segment_second * uD_fps // 2)
         end_idx = min(c + args.center_segment_second * uD_fps // 2, uD.shape[1])
         center_segments.append([int(start_idx), int(end_idx)])
+        start_idx_video = max(0, c - args.video_segment_second * uD_fps // 2)
+        end_idx_video = min(c + args.video_segment_second * uD_fps // 2, uD.shape[1])
+        center_segments_videos.append([int(start_idx_video), int(end_idx_video)])
         # print("Center segments:", start_idx/uD_fps, end_idx/uD_fps, ' seconds')
-    return gesture_segments, center_indices, center_segments
+    return gesture_segments, center_indices, center_segments, center_segments_videos

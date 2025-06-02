@@ -18,11 +18,11 @@ preprocess:
 train:
   learning_rate: 1e-4
   weight_decay: 0.01
-  epoch: 30
+  epoch: 500 #30
   batch_size: 16
   num_workers: 4
   delta: 0.01  # for loss
-  traintest_split: 'subject-0_1_2_9' #'subject-6_7_8'  # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
+  traintest_split: 'subject-3_4_5' #'subject-6_7_8' 0_1_2_9 # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
   n_class: 12
   pretrain: True
   
@@ -31,8 +31,8 @@ model:
   # backbone: 'mobilenet'
 
 wandb:
-  use_wandb: False
-  log_all: False      # log confusion, ROC, and prediction table together 
+  use_wandb: True
+  log_all: True      # log confusion, ROC, and prediction table together 
   project: Gesture-${fusion}-${train.traintest_split}
 
 transforms:
@@ -61,8 +61,8 @@ result:
   path_data: '/bigdata/shuboy/mm-egogesture/Gesture_processed_public/'
   path_des: '/bigdata/shuboy/mm-egogesture/Metadata/des_public.csv'
   path_save_vis: '/bigdata/shuboy/mm-egogesture/results/'
-  name: PaperRep_0428-${wandb.project} #'PaperRep_0428'
-  note: PaperRep_0428-${wandb.project} #'PaperRep_0428'
+  name: PaperRep_0602-${wandb.project} #'PaperRep_0428'
+  note: PaperRep_0602-${wandb.project} #'PaperRep_0428'
   labels: ['1','2','3','4','5','6','7','8','9','10','11','12']
   classes: ['06.Click','05.FSnap','04.ZIn','07.Knock','08.SwpL','09.SwpR',
           '10.T_ZIn','11.T_ZOut','12.Stop','01.OK','03.TmbUp','02.Photo']

@@ -97,6 +97,7 @@ class Trainer:
                     save_result_statistics(test_y, test_y_pred, test_des, 'best-'+self.args.result.name, self.path_save_vis)
             if test_loss<=test_loss_best:
                 test_loss_best = test_loss
+                print('test loss best: ', test_loss_best, 'test acc best', test_acc_best, 'at epoch: ', epoch+1)
                     
         if self.args.result.save_vis:
             save_result_confusion(test_y, test_y_pred, self.label, 'last-'+self.args.result.name, self.path_save_vis)

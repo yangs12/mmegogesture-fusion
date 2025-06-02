@@ -75,10 +75,12 @@ def main(args: DictConfig) -> None:
         print("Final radar_cube shape: ", radar_cube.shape)
         
         uD = RD(radar_cube, args, if_stft=True, window=False)
-        uD_fps = uD.shape[1] / args.capture_time
+        # uD_fps = uD.shape[1] / args.capture_time
+        uD_fps = 240.0
         # print(uD.shape)
         gesture_segments, center_indices, center_segments = gesture_detection(uD, args, uD_fps)
-
+        if args.save_alluD_segments:
+            save_uD_plot(uD,args, radar_file_name, uD_axis, segments = gesture_segments, center_indices = center_indices)
 
         # np.save(os.path.join(args.output_dir, f'{radar_file_name}-0-rad-uD.npy'), uD)
         # save_uD_plot(uD, args, radar_file_name, uD_axis)

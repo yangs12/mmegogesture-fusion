@@ -59,6 +59,7 @@ class Dataset_Gesture(Dataset):
         for sensor_sel in self.sensor:
             sensor_name = sensor_sel
             data[sensor_sel] = sensordata_load((episode, order, sensor_name), self.data_dir)
+        # img: (3, 256, 256)
         data['des'] = des_snapshot
 
         if self.transform:

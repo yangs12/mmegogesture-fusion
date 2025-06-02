@@ -13,6 +13,7 @@ from scipy.signal import stft
 import matplotlib.pyplot as plt
 from scipy.spatial import distance
 from sklearn.cluster import DBSCAN
+from scipy.ndimage import gaussian_filter1d
 
 # classes
 class radarDataLoader:
@@ -139,12 +140,12 @@ def RD(rda, args=None, declutter=True, window=True, track_info=None, if_stft=Fal
 
 def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
     # Saving the plot
-    fig_width = max(6, uD.shape[1] / args.plot_scale)  # adjust scaling factor as needed
+    fig_width = max(6, uD.shape[1] / args.process.plot_scale)  # adjust scaling factor as needed
     # fig, ax = plt.subplots(figsize=(fig_width, 6))
     fig, ax = plt.subplots(figsize=(10, 6))  # Set dpi to 300 for high resolution
 
     # Plot the micro-Doppler image with adjustable aspect ratio
-    im = ax.imshow(uD, aspect='auto', cmap='jet', vmax=args.vmax, vmin=args.vmin)
+    im = ax.imshow(uD, aspect='auto', cmap='jet', vmax=args.process.vmax, vmin=args.process.vmin)
     fig.colorbar(im, ax=ax)
 
     if track_id is not None:
@@ -162,7 +163,7 @@ def save_uD_plot(uD, args, radar_file_name, uD_axis, track_id=None):
     if track_id is not None:
         plt.savefig(os.path.join(args.output_dir, 'tracks_uD_figs', f'{radar_file_name}_track_{track_id}.png'))
     else:
-        plt.savefig(os.path.join(args.output_dir, f'{radar_file_name}.png'))
+        plt.savefig(os.path.join(args.process.output_dir, f'{radar_file_name}.png'))
     plt.close()
 
 
@@ -171,39 +172,169 @@ def create_video(frames, path, fps=10):
     video = mp.concatenate_videoclips(clips, method="compose")
     video.write_videofile(path, fps=fps)
 
-def gesture_detection(uD, args, uD_fps):
-    # Step 1: Get indices over threshold
-    gesture_idxs = np.where(uD.mean(0) > args.process.uD_threshold)[0]
-    if len(gesture_idxs) == 0:
+# def gesture_detection(uD, args, uD_fps):
+#     # Step 1: Get indices over threshold
+#     gesture_idxs = np.where(uD.mean(0) > args.process.uD_threshold)[0]
+#     if len(gesture_idxs) == 0:
+#         return np.array([]), np.array([]), []
+
+#     # Step 2: Group into segments allowing for small gaps
+#     gesture_segments = []
+#     start = gesture_idxs[0]
+#     for i in range(1, len(gesture_idxs)):
+#         if gesture_idxs[i] - gesture_idxs[i - 1] > args.process.gesture_gap_thresh * uD_fps:
+#             end = gesture_idxs[i - 1]
+#             gesture_segments.append((start, end))
+#             start = gesture_idxs[i]
+#     gesture_segments.append((start, gesture_idxs[-1]))
+
+#     # Filter by length
+#     min_len = args.process.gesture_min_len * uD_fps
+#     max_len = args.process.gesture_max_len * uD_fps
+#     gesture_segments = np.array([
+#         (s, e) for s, e in gesture_segments if (e - s + 1) >= min_len and (e - s + 1) <= max_len
+#     ])
+
+#     center_indices = np.array([int((s + e) / 2) for s, e in gesture_segments])
+#     print("Number of gestures detected:", len(gesture_segments), "Center indices (s):", center_indices / uD_fps)
+
+#     # For each center index, get a segment centered around it
+#     center_segments = []
+#     seg_len = int(args.process.center_segment_second * uD_fps)
+#     half_seg = seg_len // 2
+#     for c in center_indices:
+#         start_idx = max(0, c - half_seg)
+#         end_idx = min(c + half_seg, uD.shape[1])
+#         center_segments.append([int(start_idx), int(end_idx)])
+
+#     return gesture_segments, center_indices, center_segments
+
+
+
+def gesture_detection(uD, args, uD_fps, radar_file_name):
+    # Step 1: Smooth the energy signal
+    energy = uD.mean(0)
+    smoothed_energy = gaussian_filter1d(energy, sigma=args.process.smooth_sigma)
+
+    # Step 2: Threshold to binary mask
+    active = smoothed_energy > args.process.uD_threshold
+
+    # Step 3: Fill small dips (gaps within gestures)
+    filled_active = active.copy()
+    max_gap_within = int(args.process.max_gap_within * uD_fps)
+    i = 0
+    while i < len(filled_active):
+        if not filled_active[i]:
+            start = i
+            while i < len(filled_active) and not filled_active[i]:
+                i += 1
+            end = i
+            if end - start <= max_gap_within:
+                filled_active[start:end] = True
+        else:
+            i += 1
+
+    # Step 4: Extract gesture segments from filled mask
+    gesture_segments = []
+    in_segment = False
+    for i, val in enumerate(filled_active):
+        if val and not in_segment:
+            start = i
+            in_segment = True
+        elif not val and in_segment:
+            end = i - 1
+            in_segment = False
+            gesture_segments.append((start, end))
+    if in_segment:
+        gesture_segments.append((start, len(filled_active) - 1))
+
+    # Step 5: Filter by gesture length
+    min_len = int(args.process.gesture_min_len * uD_fps)
+    max_len = int(args.process.gesture_max_len * uD_fps)
+    gesture_segments = [
+        (s, e) for s, e in gesture_segments if (e - s + 1) >= min_len and (e - s + 1) <= max_len
+    ]
+
+    # Step 6: Apply minimum gap between gestures (optional)
+    min_gap_between = int(args.process.min_gap_between * uD_fps)
+    filtered_segments = []
+    last_end = -min_gap_between - 1
+    for s, e in gesture_segments:
+        if s - last_end > min_gap_between:
+            filtered_segments.append((s, e))
+            last_end = e
+    # filtered_segments = gesture_segments
+
+    if len(filtered_segments) == 0:
         return np.array([]), np.array([]), []
 
-    # Step 2: Group into segments allowing for small gaps
-    gesture_segments = []
-    start = gesture_idxs[0]
-    for i in range(1, len(gesture_idxs)):
-        if gesture_idxs[i] - gesture_idxs[i - 1] > args.process.gesture_gap_thresh * uD_fps:
-            end = gesture_idxs[i - 1]
-            gesture_segments.append((start, end))
-            start = gesture_idxs[i]
-    gesture_segments.append((start, gesture_idxs[-1]))
+    # Step 7: Compute gesture centers
+    center_indices = np.array([(s + e) // 2 for s, e in filtered_segments])
 
-    # Filter by length
-    min_len = args.process.gesture_min_len * uD_fps
-    max_len = args.process.gesture_max_len * uD_fps
-    gesture_segments = np.array([
-        (s, e) for s, e in gesture_segments if (e - s + 1) >= min_len and (e - s + 1) <= max_len
-    ])
-
-    center_indices = np.array([int((s + e) / 2) for s, e in gesture_segments])
-    print("Number of gestures detected:", len(gesture_segments), "Center indices (s):", center_indices / uD_fps)
-
-    # For each center index, get a segment centered around it
+    # Step 8: Create fixed-length center segments
     center_segments = []
-    seg_len = int(args.process.center_segment_second * uD_fps)
-    half_seg = seg_len // 2
+    center_segments_videos = []
+    half_seg = int(args.process.center_segment_second * uD_fps) // 2
+    half_seg_video = int(args.process.video_segment_second * uD_fps) // 2
     for c in center_indices:
         start_idx = max(0, c - half_seg)
         end_idx = min(c + half_seg, uD.shape[1])
-        center_segments.append([int(start_idx), int(end_idx)])
+        start_idx_video = max(0, c - half_seg_video)
+        end_idx_video = min(c + half_seg_video, uD.shape[1])
 
-    return gesture_segments, center_indices, center_segments
+        center_segments.append([int(start_idx), int(end_idx)])
+        center_segments_videos.append([int(start_idx_video), int(end_idx_video)])
+
+    # Step 9: Plot smoothed energy and gesture masks
+    plt.figure(figsize=(14, 5))
+    plt.plot(smoothed_energy, label='Smoothed Energy', linewidth=1.2)
+    plt.axhline(args.process.uD_threshold, color='red', linestyle='--', label='Threshold')
+
+    # Highlight active mask
+    plt.fill_between(range(len(filled_active)),
+                     0, filled_active * smoothed_energy.max(),
+                     color='green', alpha=0.25, label='Gesture Mask')
+
+    # Plot start/end lines
+    for i, (s, e) in enumerate(center_segments):
+        plt.axvline(s, color='orange', linestyle='-', linewidth=2,
+                    label='Start' if i == 0 else "")
+        plt.axvline(e, color='purple', linestyle='-', linewidth=2,
+                    label='End' if i == 0 else "")
+
+    # Format axes
+    plt.title('Smoothed Energy Signal (Grouped Gestures)')
+    plt.xlabel('Frame (x-axis shows seconds)')
+    plt.ylabel('Energy')
+    xticks = np.arange(0, len(smoothed_energy), uD_fps)
+    plt.xticks(xticks, np.round(xticks / uD_fps, 2))
+    plt.legend()
+    plt.tight_layout()
+
+    # Save plot
+    os.makedirs(os.path.join(args.process.output_dir, 'smoothed_energy'), exist_ok=True)
+    plt.savefig(os.path.join(args.process.output_dir, 'smoothed_energy', radar_file_name + '_smoothed_energy.png'))
+    plt.close()
+
+    return np.array(filtered_segments), center_indices, center_segments, center_segments_videos
+
+
+def visualize_segments(uD, gesture_segments, center_indices, radar_file_name, args):
+    fig_width = max(6, uD.shape[1] / args.process.plot_scale)
+    fig, ax = plt.subplots(figsize=(fig_width, 6))  # Set dpi to 300 for high resolution
+
+    im = ax.imshow(uD, aspect='auto', cmap='jet', vmax=args.process.vmax, vmin=args.process.vmin)
+    fig.colorbar(im, ax=ax)
+    ax.set_xlabel('Time (s)')
+    ax.set_ylabel('Doppler (m/s)')
+    plt.gca().invert_yaxis()
+    plt.tight_layout(pad=0.5)
+
+    for i, (start_idx, end_idx) in enumerate(gesture_segments):
+        ax.axvline(x=start_idx, color='red', linestyle='--', linewidth=3)
+        ax.axvline(x=end_idx, color='red', linestyle='--', linewidth=3)
+        ax.axvline(x=center_indices[i], color='yellow', linestyle='-', linewidth=3)
+        ax.text((start_idx + end_idx) / 2, 0, f'Gesture {i}', color='white', fontsize=10, ha='center', va='bottom', rotation=90, backgroundcolor='black')
+    os.makedirs(os.path.join(args.process.output_dir, 'visualize_segments'), exist_ok=True)
+    plt.savefig(os.path.join(args.process.output_dir, 'visualize_segments', f'{radar_file_name}_visualize_segments.png'))
+    plt.close()
