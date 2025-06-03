@@ -59,42 +59,48 @@ def main(args: DictConfig) -> None:
         ToCHWTensor(apply=sensor),
         NormalizeTensor(mean_std=args.transforms.mean_std, apply=sensor)
     ])
+    csv_des_data = []
 
     for radar_file_path in sorted(radar_files):
         start_time = time.time()
         radar_file_name = os.path.splitext(os.path.basename(radar_file_path))[0]
         print(f"\n**Processing {radar_file_path}**")
 
+        video_path = os.path.join(args.process.folder_path, 'camera', f'{radar_file_name}.avi')
+        cap = cv2.VideoCapture(video_path)
+        video_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        video_fps = cap.get(cv2.CAP_PROP_FPS)
+        cap.release()
+        capture_time = int(video_frame_count / video_fps) if video_fps > 0 else 0
+        print(f"Capture time: {capture_time} seconds")
+
         radar_loader = radarDataLoader(radar_file_path, radar_params)
         radar_cube, pcloud_list, info, num_frames, r_axis, d_axis = radar_loader.load_data()
-        radar_cube = radar_cube[:int(args.process.capture_time * radar_params['fps'] + 1), ...]
+        radar_cube = radar_cube[:int(capture_time * radar_params['fps'] + 1), ...]
         print("Final radar_cube shape:", radar_cube.shape)
 
         uD = RD(radar_cube, args, if_stft=True, window=False)
-        uD_fps = uD.shape[1] / args.process.capture_time
-        gesture_segments, center_indices, center_segments = gesture_detection(uD, args, uD_fps)
+        uD_fps = int(uD.shape[1] / capture_time)
+        uD_fps = 240.0
+        print(f"uD shape: {uD.shape}, uD_fps: {uD_fps}")
+        gesture_segments, center_indices, center_segments, center_segments_videos = gesture_detection(uD, args, uD_fps, radar_file_name)
 
+        if args.process.if_visualize_segments:
+            visualize_segments(uD, center_segments, center_indices, radar_file_name, args)
+        
+        
         for i, (start_idx, end_idx) in enumerate(center_segments):
+            if (end_idx - start_idx) / uD_fps < args.process.min_segment_length:
+                print(f"Skipping segment {i} due to insufficient length: {(end_idx - start_idx) / uD_fps} < {args.process.min_segment_length}")
+                continue
             uD_segment = uD[:, start_idx:end_idx]
             uD_resized, img_resized = None, None
-
             if args.process.if_resize_uD:
                 uD_resized = cv2.resize(
                     uD_segment, (args.process.uD_width, args.process.uD_height), interpolation=cv2.INTER_LINEAR
                 )
                 radar_mean.append(np.mean(uD_resized))
                 radar_std.append(np.std(uD_resized))
-                if args.process.if_save_uD:
-                    np.save(
-                        os.path.join(args.process.output_resize_dir, f'{radar_file_name}-seg-{i}-Class{args.process.activity}-rad-uD.npy'),
-                        uD_resized
-                    )
-                    save_uD_plot(
-                        uD_resized, args,
-                        f'{radar_file_name}-seg-{i}-Class{args.process.activity}_resized',
-                        uD_axis
-                    )
-
             if args.process.if_resize_img:
                 video_path = os.path.join(args.process.folder_path, 'camera', f'{radar_file_name}.avi')
                 frames = []
@@ -106,21 +112,45 @@ def main(args: DictConfig) -> None:
                     frames.append(frame)
                 cap.release()
                 if frames:
-                    middle_frame_index = int(center_indices[i] / uD.shape[1] * args.process.capture_time * args.process.cam_fps)
+                    middle_frame_index = int(center_indices[i] / uD.shape[1] * capture_time * args.process.cam_fps)
                     middle_frame_index = min(middle_frame_index, len(frames) - 1)
                     img = frames[middle_frame_index]
                     img_resized = cv2.resize(img, (args.process.img_width, args.process.img_height), interpolation=cv2.INTER_LINEAR)
+                    img_resized = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
                     cam_mean.append(np.mean(img_resized, axis=(0, 1)))
                     cam_std.append(np.std(img_resized, axis=(0, 1)))
-                    if args.process.if_save_img:
-                        np.save(
-                            os.path.join(args.process.output_resize_dir, f'{radar_file_name}-seg-{i}-Class{args.process.activity}-img.npy'),
-                            img_resized
-                        )
-                        cv2.imwrite(
-                            os.path.join(args.process.output_dir, f'{radar_file_name}-seg-{i}-Class{args.process.activity}-img.png'),
-                            img_resized
-                        )
+            if args.process.if_save_video: 
+                video_path = os.path.join(args.process.folder_path, 'camera', f'{radar_file_name}.avi')
+                frames = []
+                cap = cv2.VideoCapture(video_path)
+                while True:
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    frames.append(frame)
+                cap.release()
+                if frames:
+                    middle_frame_index = int(center_indices[i] / uD.shape[1] * capture_time * args.process.cam_fps)
+                    middle_frame_index = min(middle_frame_index, len(frames) - 1)
+                    start_frame = max(0, middle_frame_index - int(args.process.video_segment_second / 2 * args.process.cam_fps))
+                    end_frame = min(len(frames), middle_frame_index + int(args.process.video_segment_second / 2 * args.process.cam_fps))
+                    video_segment = frames[start_frame:end_frame]
+                    video_segment = [cv2.resize(frame, (args.process.img_width, args.process.img_height), interpolation=cv2.INTER_LINEAR) for frame in video_segment]
+                    video_segment = [cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) for frame in video_segment]
+                    # Pad video_segment with zeros if it has less frames than expected
+                    expected_frames = int(args.process.video_segment_second * args.process.cam_fps)
+                    if len(video_segment) < expected_frames and len(video_segment) > 0:
+                        h, w, c = video_segment[0].shape
+                        pad_frames = expected_frames - len(video_segment)
+                        zero_frames = [np.zeros((h, w, c), dtype=video_segment[0].dtype) for _ in range(pad_frames)]
+                        video_segment.extend(zero_frames)
+                    video_segment = np.stack(video_segment, axis=0)
+                    print(f"Video segment shape: {video_segment.shape}")
+                    video_save_path = os.path.join(
+                        args.process.output_resize_dir, f'{radar_file_name}-{i}-cam.npy'
+                    )
+                    # print(f"Saving video segment to {video_save_path}")
+                    np.save(video_save_path, video_segment)
 
             data = {
                 'cam-img': img_resized.transpose(2, 0, 1) if img_resized is not None else None,
@@ -134,13 +164,69 @@ def main(args: DictConfig) -> None:
             with torch.no_grad():
                 y_batch_prob = model_fp32(x_batch)
                 y_batch_pred = torch.argmax(y_batch_prob, axis=1)
+                activity = args.process.activity if args.process.activity is not None else y_batch_pred.item()
                 print(f'--------Segment {i} Predicted class: {y_batch_pred.item()} {gesture_map[y_batch_pred.item()]}')
 
+
+            
+            if args.process.if_save_uD:
+                if args.process.if_resize_uD:
+                    np.save(
+                        os.path.join(args.process.output_resize_dir, f'{radar_file_name}-{i}-rad-uD.npy'),
+                        uD_resized
+                    )
+                    save_uD_plot(
+                        uD_resized, args,
+                        f'{radar_file_name}-{i}_resized',
+                        uD_axis
+                    )
+                else:
+                    np.save(
+                        os.path.join(args.process.output_dir, f'{radar_file_name}-{i}-rad-uD.npy'),
+                        uD_segment
+                    )
+                    save_uD_plot(
+                        uD_segment, args,
+                        f'{radar_file_name}-{i}',
+                        uD_axis
+                    )
+
+            if args.process.if_save_img:
+                if args.process.if_resize_img:
+                    np.save(
+                        os.path.join(args.process.output_resize_dir, f'{radar_file_name}-{i}-img.npy'),
+                        img_resized
+                    )
+                    cv2.imwrite(
+                        os.path.join(args.process.output_dir, f'{radar_file_name}-{i}-img.png'),
+                        img_resized
+                    )
+                else:
+                    np.save(
+                        os.path.join(args.process.output_dir, f'{radar_file_name}-{i}-img.npy'),
+                        img
+                    )
+                    cv2.imwrite(
+                        os.path.join(args.process.output_dir, f'{radar_file_name}-{i}-img.png'),
+                        img
+                    )
+
+            csv_des_data.append([
+                radar_file_name, i, f"Subject{args.process.subject}", f"Environment{args.process.environment}", f"Gesture{activity}", "TRUE",
+            ])
+
+        print(f"Radar mean: {np.mean(radar_mean)}, Radar std: {np.std(radar_mean)}")
         end_time = time.time()
         if len(gesture_segments) > 0:
             times.append((end_time - start_time) / len(gesture_segments))
             print(f"\n Time taken per seg: {(end_time - start_time)/len(gesture_segments)} seconds")
-
+    
+    df = pd.DataFrame(csv_des_data, columns=[
+        'Episode', 'Order', 'Subject', 'Enviroment', 'Gesture', 'Remark_Episode'
+    ])
+    # df.reset_index(inplace=True)
+    df['Remark_Snapshot'] = ""
+    df.to_csv(os.path.join(args.process.output_dir, 'des_rpi'+args.process.csv_name+'.csv'), index=False)
     print(f"Radar mean: {np.mean(radar_mean)}, Radar std: {np.std(radar_mean)}")
     print(f"Camera mean: {np.mean(cam_mean, axis=0)}, Camera std: {np.std(cam_mean, axis=0)}")
     print(f"Average time taken for all episodes: {sum(times) / len(times)} seconds")

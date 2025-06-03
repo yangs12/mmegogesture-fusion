@@ -3,17 +3,20 @@ import glob
 import cv2
 import matplotlib.pyplot as plt
 
-folder = '/bigdata/shuboy/mm-egogesture/Gesture_processed_public/'
+folder = '/bigdata/shuboy/mm-egogesture/preprocessed_data/in_distribution_gestures/May21/resized_data/'
+# '/bigdata/shuboy/mm-egogesture/Gesture_processed_public/'
 
-file_name = '20231207184433-1'
-file_name_cam = file_name+ '-img'
+# file_name = '20231207184556-5'
+# file_name_cam = file_name+ '-img'
+file_name_cam = "20250521120816-seg-0-Class0-img"
 img = np.load(folder + file_name_cam + '.npy')
-img = np.transpose(img, (1, 2, 0))
 print(f"cam_data shape: {img.shape}")
-# img = cam_data[40,...]
+# img = np.transpose(img, (1, 2, 0))
+print(f"cam_data shape: {img.shape}")
 if img.dtype != np.uint8:
     img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX)
     img = img.astype(np.uint8)
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 cv2.imwrite(file_name_cam+'.png', img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

@@ -12,12 +12,15 @@ from omegaconf import OmegaConf
 import time
 import torch
 from model import main_Net
+from utils.trainer_quant import Trainer
 from utils.dataloader import ToCHWTensor, CenterCrop_Time, ResampleVideo, CropDoppler, ResizeTensor, LoadDataset_Gesture
 from utils.transform import NormalizeTensor
 from torchvision import transforms
 import re
+from torch.ao.nn.quantized import Linear as nnq_Linear
+from torchvision.models.quantization import mobilenet_v2
 
-@hydra.main(version_base="1.2", config_path="conf", config_name="process_inference")
+@hydra.main(version_base="1.2", config_path="conf", config_name="process_inference_quant_model")
 def main(args: DictConfig) -> None:
     OmegaConf.set_struct(args, False)
 
@@ -52,9 +55,69 @@ def main(args: DictConfig) -> None:
     }
     sensor = [args.sensor.select] if isinstance(args.sensor.select, str) else args.sensor.select
     device = torch.device('cpu')
-    model_fp32 = main_Net.MyNet_Main(args, device).to(device)
-    model_fp32.load_state_dict(torch.load(args.path_model, map_location=device))
-    model_fp32.eval()
+    
+    # ------ Load the quantized model ------
+    quant_type = 'qnnpack'
+    torch.backends.quantized.engine = quant_type
+
+    # define models
+    model_list = []
+    if 'concat' in args.model.fusion:
+        model1 = mobilenet_v2(pretrained=True, quantize=True)
+        model1.classifier = nn.Identity()
+        model1.to(device)
+
+        model2 = mobilenet_v2(pretrained=True, quantize=True)
+        model2.classifier = nn.Identity()
+        model2.to(device)
+        
+        fusion_classifier = FusionClassifierOptions(1280 * 2, args.train.n_class,dropout=True, batchnorm=True).to(device)
+        fusion_classifier.eval()
+        torch.quantization.fuse_modules(fusion_classifier.fc, [
+        ['0', '1'],  # Linear + BatchNorm
+        ['4', '5'],  # Linear + BatchNorm
+        ], inplace=True)
+        fusion_classifier.qconfig = torch.quantization.get_default_qconfig(quant_type)
+        torch.quantization.prepare(fusion_classifier, inplace=True)
+        torch.quantization.convert(fusion_classifier, inplace=True)
+        fusion_classifier.to(device)
+
+        model_list = [model1, model2, fusion_classifier]
+    elif 'camonly' in args.model.fusion:
+        model1 = mobilenet_v2(pretrained=True, quantize=True)
+        model1.classifier = nn.Identity()
+        model1.to(device)
+
+        fusion_classifier = FusionClassifierOptions(1280, args.train.n_class,dropout=True, batchnorm=True).to(device)
+        fusion_classifier.eval()
+        torch.quantization.fuse_modules(fusion_classifier.fc, [
+        ['0', '1'],  # Linear + BatchNorm
+        ['4', '5'],  # Linear + BatchNorm
+        ], inplace=True)
+        fusion_classifier.qconfig = torch.quantization.get_default_qconfig(quant_type)
+        torch.quantization.prepare(fusion_classifier, inplace=True)
+        torch.quantization.convert(fusion_classifier, inplace=True)
+        fusion_classifier.to(device)            
+        model_list = [model1, fusion_classifier]
+    elif 'late' in args.model.fusion:
+        model1 = mobilenet_v2(pretrained=True, quantize=True)
+        model1.classifier[1] = nnq_Linear(model1.last_channel, args.train.n_class)
+        model1.to(device)
+
+        model2 = mobilenet_v2(pretrained=True, quantize=True)
+        model2.classifier[1] = nnq_Linear(model2.last_channel, args.train.n_class)
+        model2.to(device)
+
+        model_list = [model1, model2]
+    loss_fn=torch.nn.CrossEntropyLoss().to(device)
+    
+    # load the models
+    for i, model in enumerate(model_list):
+        model.eval()
+        model_name = os.path.join(args.result.path_save_model,args.result.name+'_'+str(i)+'_quantized.pt')
+        print(f"Loading model {i} from {model_name}")
+        model.load_state_dict(torch.load(model_name, map_location=device))
+    
     transform = transforms.Compose([
         ToCHWTensor(apply=sensor),
         NormalizeTensor(mean_std=args.transforms.mean_std, apply=sensor)
@@ -62,6 +125,7 @@ def main(args: DictConfig) -> None:
     csv_des_data = []
 
     for radar_file_path in sorted(radar_files):
+        # ----- Processing each radar file -----
         start_time = time.time()
         radar_file_name = os.path.splitext(os.path.basename(radar_file_path))[0]
         print(f"\n**Processing {radar_file_path}**")
@@ -72,9 +136,8 @@ def main(args: DictConfig) -> None:
         print("Final radar_cube shape:", radar_cube.shape)
 
         uD = RD(radar_cube, args, if_stft=True, window=False)
-        uD_fps = int(uD.shape[1] / args.process.capture_time)
-        uD_fps = 240.0
-        print(f"uD shape: {uD.shape}, uD_fps: {uD_fps}")
+        uD_fps = args.process.uD_fps #int(uD.shape[1] / args.process.capture_time)
+        # print(f"uD shape: {uD.shape}, uD_fps: {uD_fps}")
         gesture_segments, center_indices, center_segments, center_segments_videos = gesture_detection(uD, args, uD_fps, radar_file_name)
 
         if args.process.if_visualize_segments:
@@ -137,30 +200,38 @@ def main(args: DictConfig) -> None:
                         zero_frames = [np.zeros((h, w, c), dtype=video_segment[0].dtype) for _ in range(pad_frames)]
                         video_segment.extend(zero_frames)
                     video_segment = np.stack(video_segment, axis=0)
-                    print(f"Video segment shape: {video_segment.shape}")
+                    # print(f"Video segment shape: {video_segment.shape}")
                     video_save_path = os.path.join(
                         args.process.output_resize_dir, f'{radar_file_name}-{i}-cam.npy'
                     )
-                    print(f"Saving video segment to {video_save_path}")
+                    # print(f"Saving video segment to {video_save_path}")
                     np.save(video_save_path, video_segment)
 
-            data = {
-                'cam-img': img_resized.transpose(2, 0, 1) if img_resized is not None else None,
-                'rad-uD': uD_resized,
-                'label': 0,
-                'des': np.nan
+            x_batch = {
+                'cam-img': np.transpose(img_resized, (2, 0, 1)) if img_resized is not None else None,
+                'rad-uD': uD_resized if uD_resized is not None else None,
+                'label': np.array([0]),
+                'des': np.array([np.nan])
             }
-            sample = transform(data)
-            x_batch = {sensor_sel: sample[sensor_sel].unsqueeze(0).to(device, dtype=torch.float) for sensor_sel in sensor}
-
-            with torch.no_grad():
-                y_batch_prob = model_fp32(x_batch)
-                y_batch_pred = torch.argmax(y_batch_prob, axis=1)
-                activity = args.process.activity if args.process.activity is not None else y_batch_pred.item()
-                print(f'--------Segment {i} Predicted class: {y_batch_pred.item()} {gesture_map[y_batch_pred.item()]}')
-
-
+            sample = transform(x_batch)
             
+            sample['rad-uD'] = sample['rad-uD'].unsqueeze(0).to(device, dtype=torch.float)
+            sample['cam-img'] = sample['cam-img'].unsqueeze(0).to(device, dtype=torch.float) if sample['cam-img'] is not None else None
+            
+            with torch.no_grad():
+                trainer = Trainer(model_list=model_list, 
+                data_train=[], 
+                data_valid=[],
+                data_test=[sample],
+                args=args, 
+                device=device,
+                )
+            test_y_pred = trainer.test([sample], device, model_list, loss_fn, 0)
+
+            activity = args.process.activity if args.process.activity is not None else test_y_pred
+            print(f'--------Segment {i} Predicted class: {test_y_pred} {gesture_map[test_y_pred]}')
+
+            # ----- Save the Data -----            
             if args.process.if_save_uD:
                 if args.process.if_resize_uD:
                     np.save(
@@ -218,7 +289,7 @@ def main(args: DictConfig) -> None:
     ])
     df.reset_index(inplace=True)
     df['Remark_Snapshot'] = ""
-    df.to_csv(os.path.join(args.process.output_dir, 'des_rpi_shubo_May26_wvideos.csv'), index=False)
+    df.to_csv(os.path.join(args.process.output_dir, 'des_rpi_shubo_May26_test_quant.csv'), index=False)
     print(f"Radar mean: {np.mean(radar_mean)}, Radar std: {np.std(radar_mean)}")
     print(f"Camera mean: {np.mean(cam_mean, axis=0)}, Camera std: {np.std(cam_mean, axis=0)}")
     print(f"Average time taken for all episodes: {sum(times) / len(times)} seconds")

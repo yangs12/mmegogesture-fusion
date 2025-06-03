@@ -1,7 +1,6 @@
 process:
-  folder: 2025May26-1811_shubo #2025May29-shubo #2025May21-1207_Shubo #2025May26-1811_shubo 
-  csv_name: ${process.folder}-wvideos
-  folder_path: /bigdata/shuboy/mm-egogesture/data_RPI/2025_May_26/${process.folder}/  #2025_May_21/  #2025May21-1200_Justin/   #2025May21-1207_Shubo/
+  folder: 2025May21-1207_Shubo #2025_May_29_12s #2025May29-shubo #2025May26-1811_shubo #2025May21-1207_Shubo #2025May26-1811_shubo #2025May26-1800_justin #2025May26-1811_shubo #2025_May_21
+  folder_path: /bigdata/shuboy/mm-egogesture/data_RPI/2025_May_21/${process.folder}/  #2025May21-1200_Justin/   #2025May21-1207_Shubo/
   # 2025May21-1305_Shubo1.6s/
   radar_data_path: ${process.folder_path}radar/
   radar_file_name: #20250529174902
@@ -16,7 +15,7 @@ process:
   output_resize_dir: /bigdata/shuboy/mm-egogesture/preprocessed_data/Jun2/resized_data/
 
   # Processing configuration
-  # capture_time: 12 #24 #1.6 #
+  capture_time: 12 #24 #1.6 #
 
 
   if_resize_uD: True
@@ -38,7 +37,8 @@ process:
   video_segment_second: 2.667
 
   # Fixed params
-  cam_fps: 30
+  cam_fps: 30.0
+  uD_fps: 240.0
   uD_width: 512
   uD_height: 256 #128
   img_width: 256
@@ -64,18 +64,35 @@ train:
   n_class: 12
   pretrain: true
   traintest_split: subject-3_4_5
+  change_channel: False
   # batch_size: 16
   # num_workers: 1
 model:
-  backbone: mobilenet-3D
+  backbone: 'mobilenet-2D'
+  fusion: 'late'
 
 data_dir: /bigdata/shuboy/mm-egogesture/preprocessed_data/out_distribution_gestures/resized_data/
 path_model: /bigdata/shuboy/mm-egogesture/models/models_0512/concat_345_last.pt
 
+result:
+  path_save_model: /bigdata/shuboy/mm-egogesture/models/quantization_0530
+  name: 'late_0129'
+  labels: ['1','2','3','4','5','6','7','8','9','10','11','12']
+  classes: ['06.Click','05.FSnap','04.ZIn','07.Knock','08.SwpL','09.SwpR',
+          '10.T_ZIn','11.T_ZOut','12.Stop','01.OK','03.TmbUp','02.Photo']
+  save_vis: False
+  # save_model: False
+  path_save_vis: /bigdata/shuboy/mm-egogesture/results
 result_dir: /bigdata/shuboy/mm-egogesture/results/
 # result:
 #   path_des: /home/shuboy/Desktop/Gesture_data/des_testonefile.csv
 #   path_data: /home/shuboy/Desktop/Gesture_data/paper_data/
+
+
+wandb:
+  use_wandb: False
+  log_all: False      # log confusion, ROC, and prediction table together 
+  project: '0602_late_finetune'
 
 transforms:
   t_actual: 1.6
@@ -114,3 +131,4 @@ transforms:
       - 0.1614103764295578
     - - 0.42124682664871216
       - 0.1674143671989441
+
