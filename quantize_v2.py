@@ -58,7 +58,7 @@ def run_model_list(x_batch,fusion_method,model_list):
     return y_batch_pred
 
 
-@hydra.main(version_base=None, config_path="conf/quant2/camonly_config", config_name="camonly_678")
+@hydra.main(version_base=None, config_path="conf/quant/late_config", config_name="late_0129")
 def main(args: DictConfig) -> None:
     config = OmegaConf.to_container(args)
     device = torch.device('cpu')

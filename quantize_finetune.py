@@ -60,7 +60,7 @@ def run_model_list(x_batch,fusion_method,model_list):
     return y_batch_pred
 
 
-@hydra.main(version_base=None, config_path="conf/quant2/late_config", config_name="late_0129_finetune")
+@hydra.main(version_base=None, config_path="conf/quant2/late_config", config_name="late_678_finetune")
 def main(args: DictConfig) -> None:
     config = OmegaConf.to_container(args)
     device = torch.device('cpu')
@@ -174,9 +174,9 @@ def main(args: DictConfig) -> None:
                     )
 
     # Fine tuning step
-    print("🔍 Running fine-tuning step...")
-    trainer.train()
-    wandb.finish()
+    # print("🔍 Running fine-tuning step...")
+    # trainer.train()
+    # wandb.finish()
 
     # Calibration step
     print("🔍 Running calibration step...")

@@ -15,7 +15,7 @@ from utils.dataloader import *
 from utils.result_utils import *
 from model import mainattention_Net, mainlate_Net, main_Net
 
-@hydra.main(version_base=None, config_path="conf/avgresult_config/vid", config_name="vid_inference_345_pi")
+@hydra.main(version_base=None, config_path="conf/avgresult_config/vid", config_name="vid_inference_0129")
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

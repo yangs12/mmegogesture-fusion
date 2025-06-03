@@ -27,7 +27,7 @@ model:
   # backbone: 'mobilenet'
 
 wandb:
-  use_wandb: True
+  use_wandb: False
   log_all: False      # log confusion, ROC, and prediction table together 
   project: '0525_late'
 

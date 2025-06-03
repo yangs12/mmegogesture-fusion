@@ -81,8 +81,7 @@ def load_models(fusion_type, quantized,device,num_classes,quant_type='qnnpack'):
   return model_list
 
 
-
-@hydra.main(version_base=None, config_path="conf/avgresult_config/late", config_name="late_inference_0129")
+@hydra.main(version_base=None, config_path="conf/avgresult_config/quant/late", config_name="late_inference_678")
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -90,6 +89,7 @@ def main(inf_args: DictConfig) -> None:
   path_args = config['path_args']
   path_model = config['path_model']
   quantized = config['quantized']
+  print("Quantized: ", quantized)
   args = OmegaConf.load(path_args)
 
   if quantized:
