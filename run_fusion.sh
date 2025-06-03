@@ -1,0 +1,3 @@
+python3 main_gesture.py wandb.use_wandb=True wandb.project='Gesture-Fusion' train.epoch=50 sensor.select=['rad-uD','cam-img'] train.traintest_split='subject-1_2_3_10'
+python3 main_gesture.py wandb.use_wandb=True wandb.project='Gesture-Fusion' train.epoch=50 sensor.select=['rad-uD','cam-img'] train.traintest_split='subject-4_5_6'
+python3 main_gesture.py wandb.use_wandb=True wandb.project='Gesture-Fusion' train.epoch=50 sensor.select=['rad-uD','cam-img'] train.traintest_split='subject-7_8_9'

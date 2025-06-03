@@ -4,7 +4,7 @@ defaults:
 fusion: multi_cross
 project: 'gesture'
 sensor: 
-  select: ['rad-uD', 'cam-img']
+  select: ['rad-uD'] #['cam-vid']  #['rad-uD','cam-img'] #['cam-vid'] #['rad-uD','cam-img'] #['cam-vid'] #['rad-uD', 'cam-img']
   # select: ['rad-uD','rad-uD_Whalf','rad-uD_Wdouble','rad-A','rad-R','rad-uD_channel','cam']
   win_cam: 80       # window length of cam snapshot
   win_rad: 512      # window length of rad snapshot
@@ -18,22 +18,24 @@ preprocess:
 train:
   learning_rate: 1e-4
   weight_decay: 0.01
-  epoch: 500 #30
+  epoch: 1 #30
   batch_size: 16
   num_workers: 4
   delta: 0.01  # for loss
-  traintest_split: 'subject-3_4_5' #'subject-6_7_8' 0_1_2_9 # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
+  traintest_split: 'subject-1_2_3_10' #'subject-6_7_8' 0_1_2_9 # 'random': random split, 'subject': subject-indep. split, 'environment': environment-indep. split
   n_class: 12
   pretrain: True
   
 model:
-  backbone: 'mobilenet-3D'
+  backbone: 'mobilenet-2D'
   # backbone: 'mobilenet'
+  video_pretrained_model_path: /bigdata/shuboy/mm-egogesture/models/kinetics_mobilenetv2_1.0x_RGB_16_best.pth
 
 wandb:
-  use_wandb: True
+  use_wandb: False
   log_all: True      # log confusion, ROC, and prediction table together 
-  project: Gesture-${fusion}-${train.traintest_split}
+  project: Gesture-uD
+  name: ${wandb.project}-${train.traintest_split}
 
 transforms:
   t_actual: 1.6        
@@ -60,9 +62,9 @@ result:
   save_model: True
   path_data: '/bigdata/shuboy/mm-egogesture/Gesture_processed_public/'
   path_des: '/bigdata/shuboy/mm-egogesture/Metadata/des_public.csv'
-  path_save_vis: '/bigdata/shuboy/mm-egogesture/results/'
-  name: PaperRep_0602-${wandb.project} #'PaperRep_0428'
-  note: PaperRep_0602-${wandb.project} #'PaperRep_0428'
+  path_save_vis: '/bigdata/shuboy/mm-egogesture/results_0602/'
+  name: 0602-${wandb.name} 
+  note: 0602-${wandb.name}
   labels: ['1','2','3','4','5','6','7','8','9','10','11','12']
   classes: ['06.Click','05.FSnap','04.ZIn','07.Knock','08.SwpL','09.SwpR',
           '10.T_ZIn','11.T_ZOut','12.Stop','01.OK','03.TmbUp','02.Photo']

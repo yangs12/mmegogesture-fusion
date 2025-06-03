@@ -6,7 +6,7 @@ import wandb
 import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
-import pickle
+# import pickle
 import seaborn as sns
 from utils.result_utils import *
 from utils.camera import *
@@ -70,8 +70,8 @@ class Trainer:
                     step, epoch+1, Epoch_num, iter + 1, len(self.data_train), train_loss/train_num))
             test_acc, test_loss, test_y, test_y_pred, test_y_prob, test_des = self.test(self.data_test, self.device, self.model, loss_fn, epoch)
             lr_scheduler.step()
-            # if epoch==0:
-            #     GFlops, N_params = self.cal_model_stats(self.model, self.data_test)
+            if epoch==0:
+                GFlops, N_params = self.cal_model_stats(self.model, self.data_test)
             self.result['y'][epoch]      = test_y
             self.result['y_pred'][epoch] = test_y_pred
             print('test acc ', test_acc, 'test_loss ', test_loss)
@@ -81,8 +81,8 @@ class Trainer:
                     'train_loss': train_loss/train_num,
                     'test_acc': test_acc, 
                     'test_loss':  test_loss,
-                    # 'GFLOPs': GFlops,
-                    # 'N_param': N_params
+                    'GFLOPs': GFlops,
+                    'N_param': N_params
                     }, step=epoch)
                 if self.args.wandb.log_all:
                     wandb.log({
@@ -92,9 +92,11 @@ class Trainer:
                 
             if test_acc>=test_acc_best:
                 test_acc_best = test_acc
-                if self.args.result.save_vis and epoch>0:
+                if self.args.result.save_vis: # and epoch>0:
                     save_result_confusion(test_y, test_y_pred, self.label, 'best-'+self.args.result.name, self.path_save_vis)
                     save_result_statistics(test_y, test_y_pred, test_des, 'best-'+self.args.result.name, self.path_save_vis)
+                    os.makedirs(f"{self.path_save_vis}/models", exist_ok=True)
+                    torch.save(self.model, f"{self.path_save_vis}/models/best-{self.args.result.name}.pt")
             if test_loss<=test_loss_best:
                 test_loss_best = test_loss
                 print('test loss best: ', test_loss_best, 'test acc best', test_acc_best, 'at epoch: ', epoch+1)
@@ -153,22 +155,50 @@ class Trainer:
                 wandb.log({"test_preds" : test_table}, step=epoch)
         return acc.item(), test_loss/total, y_true, y_pred, y_prob, des
     
+    # def cal_model_stats(self, model, data_test, flag_table=False):
+    #     """
+    #     Output: Flops (G), # params (M)
+    #     """
+    #     from fvcore.nn import FlopCountAnalysis, parameter_count, parameter_count_table
+    #     dat_sample   = [data_test.dataset[0][0].unsqueeze(dim=0)]
+    #     x = {}
+    #     model.eval()
+    #     for sensor_idx, sensor_sel in enumerate(self.sensor):
+    #         x[sensor_sel] = dat_sample[sensor_idx].to(self.device, dtype=torch.float)
+    #     flops = FlopCountAnalysis(model, x)
+    #     param = parameter_count(model)
+    #     if flag_table:
+    #         print(parameter_count_table(model))
+    #     return flops.total()/1e9, param[list(param)[1]]/1e6
     def cal_model_stats(self, model, data_test, flag_table=False):
         """
         Output: Flops (G), # params (M)
         """
         from fvcore.nn import FlopCountAnalysis, parameter_count, parameter_count_table
-        dat_sample   = [data_test.dataset[0][0].unsqueeze(dim=0)]
-        x = {}
+
         model.eval()
-        for sensor_idx, sensor_sel in enumerate(self.sensor):
-            x[sensor_sel] = dat_sample[sensor_idx].to(self.device, dtype=torch.float)
+        if len(self.sensor) >1:
+            dat_sample = [data_test.dataset[0][0], data_test.dataset[0][1]]  # assuming it’s a dict or list of tensors
+        else:
+            dat_sample = data_test.dataset[0][0].unsqueeze(0)
+        x = {}
+        for sensor_sel in self.sensor:
+            print(f"Sensor: {sensor_sel}")
+            sensor_input = dat_sample[sensor_sel] if isinstance(dat_sample, dict) else dat_sample[self.sensor.index(sensor_sel)]
+            x[sensor_sel] = sensor_input.unsqueeze(0).to(self.device, dtype=torch.float)
+        print(f"Input shape: {[v.shape for v in x.values()]}")
+        # Calculate FLOPs
         flops = FlopCountAnalysis(model, x)
+        
+        # Calculate parameters
         param = parameter_count(model)
+        total_params = param.get("total", sum(param.values()))
+
         if flag_table:
             print(parameter_count_table(model))
-        return flops.total()/1e9, param[list(param)[1]]/1e6
-    
+        print(f"Total FLOPs: {flops.total() / 1e9} G, Total Params: {total_params / 1e6} M")
+        return flops.total() / 1e9, total_params / 1e6
+
     def log_test_predictions(self, des, inputs, labels, outputs, predicted, test_table, NUM_IMAGES_PER_BATCH):
         # obtain confidence scores for all classes
         scores = F.softmax(outputs.data, dim=1)

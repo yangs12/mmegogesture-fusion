@@ -90,3 +90,4 @@ if __name__ == '__main__':
 #                                     input_shape=input_shape,
 #                                     output_as_string=True,
 #                                     output_precision=4)
+# print(f"FLOPs: {flops}, MACs: {macs}, Params: {params}")
