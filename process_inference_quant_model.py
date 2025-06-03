@@ -114,7 +114,7 @@ def main(args: DictConfig) -> None:
     # load the models
     for i, model in enumerate(model_list):
         model.eval()
-        model_name = os.path.join(args.result.path_save_model,args.result.name+'_'+str(i)+'_quantized.pt')
+        model_name = os.path.join(args.result.path_save_model,args.result.name+'_'+str(i)+'_quantized_finetuned.pt')
         print(f"Loading model {i} from {model_name}")
         model.load_state_dict(torch.load(model_name, map_location=device))
     
@@ -132,11 +132,21 @@ def main(args: DictConfig) -> None:
 
         radar_loader = radarDataLoader(radar_file_path, radar_params)
         radar_cube, pcloud_list, info, num_frames, r_axis, d_axis = radar_loader.load_data()
-        radar_cube = radar_cube[:int(args.process.capture_time * radar_params['fps'] + 1), ...]
+
+        video_path = os.path.join(args.process.folder_path, 'camera', f'{radar_file_name}.avi')
+        cap = cv2.VideoCapture(video_path)
+        video_frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        video_fps = cap.get(cv2.CAP_PROP_FPS)
+        cap.release()
+        capture_time = int(video_frame_count / video_fps) if video_fps > 0 else 0
+        print(f"Capture time: {capture_time} seconds")
+
+        radar_cube = radar_cube[:int(capture_time * radar_params['fps'] + 1), ...]
         print("Final radar_cube shape:", radar_cube.shape)
 
         uD = RD(radar_cube, args, if_stft=True, window=False)
         uD_fps = args.process.uD_fps #int(uD.shape[1] / args.process.capture_time)
+
         # print(f"uD shape: {uD.shape}, uD_fps: {uD_fps}")
         gesture_segments, center_indices, center_segments, center_segments_videos = gesture_detection(uD, args, uD_fps, radar_file_name)
 
@@ -167,7 +177,7 @@ def main(args: DictConfig) -> None:
                     frames.append(frame)
                 cap.release()
                 if frames:
-                    middle_frame_index = int(center_indices[i] / uD.shape[1] * args.process.capture_time * args.process.cam_fps)
+                    middle_frame_index = int(center_indices[i] / uD.shape[1] * capture_time * args.process.cam_fps)
                     middle_frame_index = min(middle_frame_index, len(frames) - 1)
                     img = frames[middle_frame_index]
                     img_resized = cv2.resize(img, (args.process.img_width, args.process.img_height), interpolation=cv2.INTER_LINEAR)
@@ -185,7 +195,7 @@ def main(args: DictConfig) -> None:
                     frames.append(frame)
                 cap.release()
                 if frames:
-                    middle_frame_index = int(center_indices[i] / uD.shape[1] * args.process.capture_time * args.process.cam_fps)
+                    middle_frame_index = int(center_indices[i] / uD.shape[1] * capture_time * args.process.cam_fps)
                     middle_frame_index = min(middle_frame_index, len(frames) - 1)
                     start_frame = max(0, middle_frame_index - int(args.process.video_segment_second / 2 * args.process.cam_fps))
                     end_frame = min(len(frames), middle_frame_index + int(args.process.video_segment_second / 2 * args.process.cam_fps))
