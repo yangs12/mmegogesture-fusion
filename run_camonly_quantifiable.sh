@@ -1,0 +1,3 @@
+python3 main_gesture_quantifiable.py wandb.use_wandb=True wandb.project='Gesture-Camonly-Quantifiable' train.epoch=50 sensor.select=['rad-uD','cam-img'] model.fusion='camonly' train.traintest_split='subject-1_2_3_10'
+python3 main_gesture_quantifiable.py wandb.use_wandb=True wandb.project='Gesture-Camonly-Quantifiable' train.epoch=50 sensor.select=['rad-uD','cam-img'] model.fusion='camonly' train.traintest_split='subject-4_5_6'
+python3 main_gesture_quantifiable.py wandb.use_wandb=True wandb.project='Gesture-Camonly-Quantifiable' train.epoch=50 sensor.select=['rad-uD','cam-img'] model.fusion='camonly' train.traintest_split='subject-7_8_9'

@@ -187,10 +187,8 @@ class Trainer:
             sensor_input = dat_sample[sensor_sel] if isinstance(dat_sample, dict) else dat_sample[self.sensor.index(sensor_sel)]
             x[sensor_sel] = sensor_input.unsqueeze(0).to(self.device, dtype=torch.float)
         print(f"Input shape: {[v.shape for v in x.values()]}")
-        # Calculate FLOPs
+
         flops = FlopCountAnalysis(model, x)
-        
-        # Calculate parameters
         param = parameter_count(model)
         total_params = param.get("total", sum(param.values()))
 

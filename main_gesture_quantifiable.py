@@ -1,0 +1,115 @@
+"""
+STEP 1
+Main File, WITH BATCHNORM + DROPOUT QUANTIZATION, RUNS CONCAT/CAMONLY/LATE FUSION
+"""
+import os
+import sys
+import hydra
+import wandb
+from omegaconf import OmegaConf
+from omegaconf.dictconfig import DictConfig
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+import torch
+from utils.trainer_quant import Trainer
+from utils.dataloader import *
+
+from model.classifier_head import FusionClassifierOptions
+from torch import nn
+from torchvision.models.quantization import mobilenet_v2
+@hydra.main(version_base=None, config_path="conf/", config_name="config_quantifiable")
+def main(args: DictConfig) -> None:
+  config = OmegaConf.to_container(args)
+  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+  sensor = [args.sensor.select] if str(type(args.sensor.select))=="<class 'str'>" else args.sensor.select
+  transform_list = {'train':[
+                      ToCHWTensor(apply=sensor),
+                      RandomizeCrop_Time(win_snapshot=(args.sensor.win_cam,args.sensor.win_rad), 
+                                          t_snapshot=args.sensor.t_snapshot,
+                                          t_actual=args.transforms.t_actual, 
+                                          t_spare=args.transforms.t_spare, 
+                                          apply=sensor),
+                      ResampleVideo(resample=args.transforms.resample_cam, apply=sensor),     # RGB only
+                      CropDoppler(ratio=args.transforms.cropratio_uD, apply=sensor),          # radar-uD only
+                      ResizeTensor(size_rad=(args.transforms.size_rad_D,args.transforms.size_rad_T), size_cam=args.transforms.size_cam, apply=sensor),
+                      ],
+                    'test': [
+                              ToCHWTensor(apply=sensor),
+                              CenterCrop_Time(win_snapshot=(args.sensor.win_cam,args.sensor.win_rad),
+                                              t_snapshot=args.sensor.t_snapshot, 
+                                              t_actual=args.transforms.t_actual, 
+                                              apply=sensor),
+                              ResampleVideo(resample=args.transforms.resample_cam, apply=sensor),     # RGB only
+                              CropDoppler(ratio=args.transforms.cropratio_uD, apply=sensor),          # radar-uD only
+                              ResizeTensor(size_rad=(args.transforms.size_rad_D,args.transforms.size_rad_T), size_cam=args.transforms.size_cam, apply=sensor),
+                          ]}
+  # Preprocessing & Save
+  if args.preprocess.flag_statistics:
+    Analyze_statistics(args, transform_list)
+  if args.preprocess.flag_visualize:
+    Visualize_data(args)
+
+  data_train, data_test = LoadDataset_Gesture(args, transform_list)
+
+  if args.wandb.use_wandb:
+    wandb.init(
+          project = args.wandb.project, 
+          entity = "shuboy", 
+          config = config, 
+          notes = args.result.note,
+          name = args.result.name
+          )
+    wandb.config = {
+          "learning_rate": args.train.learning_rate,
+          "weight_decay": args.train.weight_decay,
+          "delta": args.train.delta,
+          }
+  model_list = []
+  if 'concat' in args.model.fusion:
+    print("Using concat fusion model")
+    model1 = mobilenet_v2(pretrained=True, quantize=False)
+    model1.classifier = nn.Identity()
+    model1.to(device)
+
+    model2 = mobilenet_v2(pretrained=True, quantize=False)
+    model2.classifier = nn.Identity()
+    model2.to(device)
+
+    fusion_classifier = FusionClassifierOptions(1280 * 2, args.train.n_class,dropout=True, batchnorm=True).to(device)
+    model_list = [model1, model2, fusion_classifier]
+  elif 'camonly' in args.model.fusion:
+    print("Using camonly fusion model")
+    model1 = mobilenet_v2(pretrained=True, quantize=False)
+    model1.classifier = nn.Identity()
+    model1.to(device)
+
+    fusion_classifier = FusionClassifierOptions(1280, args.train.n_class,dropout=True, batchnorm=True).to(device)
+    model_list = [model1, fusion_classifier]
+  elif 'late' in args.model.fusion:
+    print("Using late fusion model")
+    model1 = mobilenet_v2(pretrained=True, quantize=False)
+    model1.classifier[1] = nn.Linear(model1.last_channel, args.train.n_class)
+    model1.to(device)
+
+    model2 = mobilenet_v2(pretrained=True, quantize=False)
+    model2.classifier[1] = nn.Linear(model2.last_channel, args.train.n_class)
+    model2.to(device)
+
+    model_list = [model1, model2]
+  
+  # Learning
+  trainer = Trainer(model_list=model_list,
+                    data_train=data_train, 
+                    data_valid=[],
+                    data_test=data_test,
+                    args=args, 
+                    device=device,
+                    )
+  trainer.train()
+
+  wandb.finish()
+
+
+if __name__ == '__main__':
+  main()

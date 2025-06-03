@@ -157,14 +157,15 @@ class Trainer:
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                # print
                 step += 1
                 progress_bar.set_description(
                 'Step: {}. Epoch: {}/{}. Iteration: {}/{}. Total loss: {:.5f}.'.format(
                     step, epoch+1, Epoch_num, iter + 1, len(self.data_train), train_loss/train_num))
             test_acc, test_loss, test_y, test_y_pred, test_y_prob, test_des = self.test(self.data_test, self.device, self.model_list, loss_fn, epoch)
             lr_scheduler.step()
-            # if epoch==0:
-            #     GFlops, N_params = self.cal_model_stats(self.model, self.data_test)
+            if epoch==0:
+                GFlops, N_params = self.cal_model_stats(self.model_list, self.data_test)
             self.result['y'][epoch]      = test_y
             self.result['y_pred'][epoch] = test_y_pred
             print('test acc ', test_acc, 'test_loss ', test_loss)
@@ -232,56 +233,75 @@ class Trainer:
 
         for data in data_test:
             with torch.no_grad():
-                # x_batch = {}
-                # for sensor_idx, sensor_sel in enumerate(self.sensor):
-                #     x_batch[sensor_sel] = data[sensor_sel].to(self.device, dtype=torch.float) #data[sensor_idx]
-                x_batch = data
-                # y_batch = data['label'].to(self.device, dtype=torch.long) #data[-2]
-                # des_batch = data['des'] #data[-1]
+                x_batch = {}
+                for sensor_idx, sensor_sel in enumerate(self.sensor):
+                    x_batch[sensor_sel] = data[sensor_idx].to(self.device, dtype=torch.float)
+                y_batch = data[-2].to(self.device, dtype=torch.long)
+                des_batch = data[-1]
+
                 for model in model_list:
                     model.eval().to(self.device)
 
                 y_batch_prob = self.run_model_list(x_batch)
 
-                # loss = loss_fn(y_batch_prob, y_batch)
+                loss = loss_fn(y_batch_prob, y_batch)
                 y_batch_pred = torch.argmax(y_batch_prob,axis = 1)
-                # correct += torch.sum(y_batch_pred==y_batch)
-                total += len(y_batch_pred)              
-                # test_loss += loss.item() * x_batch[self.sensor[0]].size(0)
+                correct += torch.sum(y_batch_pred==y_batch)
+                total += len(y_batch)              
+                test_loss += loss.item() * x_batch[self.sensor[0]].size(0)
                 if self.args.wandb.use_wandb:
                     self.log_test_predictions(des_batch, x_batch, y_batch, 
                                                 y_batch_prob, y_batch_pred, test_table, NUM_IMAGES_PER_BATCH=1)
 
                 for i in range(x_batch[self.sensor[0]].size(0)):
                     y_pred.append(y_batch_pred[i].item())
-                    print(f"y_batch_pred: {y_batch_pred[i].item()}")
-                    # y_true.append(y_batch[i].item())
+                    y_true.append(y_batch[i].item())
                     y_prob.append(y_batch_prob[i].to('cpu').numpy())
-                    # des.append(des_batch[i])
-        # acc = correct/total
+                    des.append(des_batch[i])
+        acc = correct/total
         y_prob = [list(sample) for sample in y_prob]
         if self.args.wandb.use_wandb:
             if self.args.wandb.log_all:
                 wandb.log({"test_preds" : test_table}, step=epoch)
-        # return acc.item(), test_loss/total, y_true, y_pred, y_prob, des
-        return y_batch_pred[i].item()
-        
-    def cal_model_stats(self, model, data_test, flag_table=False):
+        return acc.item(), test_loss/total, y_true, y_pred, y_prob, des
+    
+    def cal_model_stats(self, model_list, data_test, flag_table=False):
         """
         Output: Flops (G), # params (M)
         """
         from fvcore.nn import FlopCountAnalysis, parameter_count, parameter_count_table
-        dat_sample   = [data_test.dataset[0][0].unsqueeze(dim=0)]
-        x = {}
-        model.eval()
-        for sensor_idx, sensor_sel in enumerate(self.sensor):
-            x[sensor_sel] = dat_sample[sensor_idx].to(self.device, dtype=torch.float)
-        flops = FlopCountAnalysis(model, x)
-        param = parameter_count(model)
-        if flag_table:
-            print(parameter_count_table(model))
-        return flops.total()/1e9, param[list(param)[1]]/1e6
-    
+
+        if self.args.model.fusion == 'concat':
+            dummy_input = {
+                'rad-uD': torch.randn(1, 256, 512).to(self.device),            # shape: [B, H, W]
+                'cam-img': torch.randn(1, 3, 256, 256).to(self.device)        # shape: [B, C, H, W]
+            }
+            model = FusionWrapperConcat(model_list).eval()  # your model_list must be loaded and in eval mode
+            flops_num = FlopCountAnalysis(model, dummy_input).total()
+            param = parameter_count(model)
+            total_params = sum(param.values())
+
+        elif self.args.model.fusion == 'camonly':
+            dummy_input = {
+                'cam-img': torch.randn(1, 3, 256, 256).to(self.device)    # shape: [B, C, H, W]
+            }
+            model = CamOnlyWrapper(model_list).eval()
+            flops_num = FlopCountAnalysis(model, dummy_input).total()
+            param = parameter_count(model)
+            total_params = sum(param.values())
+        elif self.args.model.fusion == 'late':
+            dummy_input = {
+                'rad-uD': torch.randn(1, 256, 512).to(self.device),            # shape: [B, H, W]
+                'cam-img': torch.randn(1, 3, 256, 256).to(self.device)    # shape: [B, C, H, W]
+            }
+            model = FusionWrapperLate(model_list).eval()  # your model_list must be loaded and in eval mode
+            flops_num = FlopCountAnalysis(model, dummy_input).total()
+            param = parameter_count(model)
+            total_params = sum(param.values())
+
+        print(f"Total FLOPs: {flops_num / 1e9} G, Total Params: {total_params / 1e6} M")
+        return flops_num / 1e9, total_params / 1e6
+
     def log_test_predictions(self, des, inputs, labels, outputs, predicted, test_table, NUM_IMAGES_PER_BATCH):
         # obtain confidence scores for all classes
         scores = F.softmax(outputs.data, dim=1)
@@ -309,4 +329,49 @@ class Trainer:
             data_sel.extend((self.classes[int(l)], self.classes[int(p)], *s))
             test_table.add_data(*data_sel)
     
-            
+
+
+class FusionWrapperConcat(nn.Module):
+    def __init__(self, model_list):
+        super().__init__()
+        self.model_radar = model_list[0]
+        self.model_cam = model_list[1]
+        self.fusion_classifier = model_list[-1]
+
+    def forward(self, x):
+        # x is a dict with keys: 'rad-uD' and 'cam-img'
+        radar_processed = einops.repeat(x['rad-uD'], 'b h w -> b copy h w', copy=3)  # 3-channel replicate
+        feat1 = self.model_radar(radar_processed)
+        feat2 = self.model_cam(x['cam-img'])
+        fused = torch.cat([feat1, feat2], dim=1)
+        return self.fusion_classifier(fused)
+
+
+class FusionWrapperLate(nn.Module):
+    def __init__(self, model_list):
+        super().__init__()
+        self.model_radar = model_list[0]
+        self.model_cam = model_list[1]
+
+    def forward(self, x):
+        # x is a dict: {'rad-uD': ..., 'cam-img': ...}
+        radar_input = einops.repeat(x['rad-uD'], 'b h w -> b copy h w', copy=3)
+        cam_input = x['cam-img']
+
+        output1 = self.model_radar(radar_input)
+        output2 = self.model_cam(cam_input)
+
+        return (output1 + output2) / 2.0
+
+import torch
+import torch.nn as nn
+
+class CamOnlyWrapper(nn.Module):
+    def __init__(self, model_list):
+        super().__init__()
+        self.model_cam = model_list[0]
+        self.classifier = model_list[-1]
+
+    def forward(self, x):  # x is a dict with 'cam-img'
+        feat = self.model_cam(x['cam-img'])
+        return self.classifier(feat)
