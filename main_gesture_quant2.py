@@ -1,5 +1,6 @@
 """
-Main File
+STEP 1
+Main File, WITH BATCHNORM + DROPOUT QUANTIZATION, RUNS CONCAT/CAMONLY/LATE FUSION
 """
 import os
 import sys

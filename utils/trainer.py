@@ -51,9 +51,9 @@ class Trainer:
                 x_batch = {}
                 for sensor_idx, sensor_sel in enumerate(self.sensor):
                     x_batch[sensor_sel] = data[sensor_idx].to(self.device, dtype=torch.float)
+                    print(x_batch[sensor_sel].shape)
                 y_batch   = data[-2].to(self.device, dtype=torch.long)
                 des_batch = data[-1]
-            
                 y_batch_pred = self.model(x_batch)
                 loss = loss_fn(y_batch_pred, y_batch)
 

@@ -14,6 +14,11 @@ from utils.dataloader import *
 from utils.trainer_quant import Trainer
 from model.classifier_head import FusionClassifierOptions
 
+'''
+STEP 2 ALMOST THE SAME AS QUANTIZE_V2 (only tries to run .train() again)
+
+'''
+
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"

@@ -17,7 +17,7 @@ from model import main_Net, mainattention_Net, mainlate_Net
 
 import pandas as pd
 
-@hydra.main(version_base=None, config_path="conf/avgresult_config/att", config_name="att_inference_678")
+@hydra.main(version_base=None, config_path="conf/avgresult_config/vid", config_name="vid_inference_678")
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

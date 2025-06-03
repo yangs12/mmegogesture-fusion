@@ -1,0 +1,4 @@
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0601_video/video_0129_last.pt'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/vid_config/vid_0129.yaml'
+path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
+csv_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/csv/vid/vid_0129.csv'

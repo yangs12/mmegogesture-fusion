@@ -13,7 +13,7 @@ preprocess:
 train:
   learning_rate: 1e-4
   weight_decay: 0.01
-  epoch: 5
+  epoch: 1
   batch_size: 16
   num_workers: 4
   delta: 0.01  # for loss
@@ -54,13 +54,13 @@ transforms:
 result:
   save_vis: True
   save_model: True
-  path_data: /home/shuboy/captured_data/uD_128fft/home/shuboy/captured_data/2025_May_30/2025May30-1853
-  # '/bigdata/shuboy/mm-egogesture/preprocessed_data/May21_26_29_shubo/resized_data'
-  path_des: /home/shuboy/Desktop/mmegogesture-fusion/des_rpi_justin_shortened_May212629_testdata.csv
-  # path_load_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0525_late'
-  path_save_vis: /home/shuboy/captured_data/results
-  # '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/0530_late_finetune/'
-  path_save_model: '/home/shuboy/Desktop/mmegogesture-fusion/saved_model/0530_late_finetune'
+  # path_data: '/bigdata/shuboy/mm-egogesture/preprocessed_data/May21_26_29_shubo/resized_data'
+  # path_des: '/home/jchang13/fusion/mmegogesture-fusion/des_rpi_justin_shortened_May212629_testdata.csv'
+  path_data: '/bigdata/shuboy/mm-egogesture/preprocessed_data/Jun2/resized_data'
+  path_des: '/bigdata/shuboy/mm-egogesture/preprocessed_data/Jun2/des_rpi2025May21_26_29_Shubo_Jun2.csv'
+  path_load_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0525_late'
+  path_save_vis: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/0530_late_finetune/'
+  path_save_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0530_late_finetune'
   name: 'late_0129'
   note: 'Temp'
   labels: ['1','2','3','4','5','6','7','8','9','10','11','12']

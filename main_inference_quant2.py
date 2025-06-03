@@ -1,4 +1,5 @@
 """
+STEP 3, run inference with quantized models
 Main File
 """
 import os
@@ -19,7 +20,9 @@ from torch.ao.nn.quantized import Linear as nnq_Linear
 from torch import nn
 from torchvision.models.quantization import mobilenet_v2
 
-@hydra.main(version_base=None, config_path="conf/quant2/concat_config", config_name="concat_0129")
+# @hydra.main(version_base=None, config_path="conf/quant2/concat_config", config_name="concat_0129")
+@hydra.main(version_base=None, config_path="conf/quant2/late_config", config_name="late_0129_finetune")
+
 def main(args: DictConfig) -> None:
   config = OmegaConf.to_container(args)
   device = torch.device('cpu')

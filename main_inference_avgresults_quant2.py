@@ -1,5 +1,5 @@
 """
-Main File
+Main File, runs inference based on yaml and saves results to csv (for confusion matrix)
 """
 import os
 import sys
@@ -82,7 +82,7 @@ def load_models(fusion_type, quantized,device,num_classes,quant_type='qnnpack'):
 
 
 
-@hydra.main(version_base=None, config_path="conf/avgresult_config/quant2/camonly", config_name="camonly_inference_678")
+@hydra.main(version_base=None, config_path="conf/avgresult_config/late", config_name="late_inference_0129")
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

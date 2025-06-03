@@ -14,7 +14,9 @@ from utils.trainer import Trainer
 from utils.dataloader import *
 from model import mainattention_Net, mainlate_Net, main_Net
 
-@hydra.main(version_base=None, config_path="conf/concat_config", config_name="concat_0129")
+@hydra.main(version_base=None, config_path="conf/vid_config", config_name="vid_678")
+# @hydra.main(version_base=None, config_path="conf", config_name="config_gesture")
+
 def main(args: DictConfig) -> None:
   config = OmegaConf.to_container(args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

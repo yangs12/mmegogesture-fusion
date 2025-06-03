@@ -13,9 +13,9 @@ import torch
 from utils.trainer import Trainer
 from utils.dataloader import *
 from utils.result_utils import *
-from model import mainattention_Net, mainlate_Net, main_Net2_quant
+from model import mainattention_Net, mainlate_Net, main_Net
 
-@hydra.main(version_base=None, config_path="conf", config_name="config_inference_quant")
+@hydra.main(version_base=None, config_path="conf/avgresult_config/vid", config_name="vid_inference_345_pi")
 def main(inf_args: DictConfig) -> None:
   config = OmegaConf.to_container(inf_args)
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -47,14 +47,14 @@ def main(inf_args: DictConfig) -> None:
                               ResizeTensor(size_rad=(args.transforms.size_rad_D,args.transforms.size_rad_T), size_cam=args.transforms.size_cam, apply=sensor),
                           ]}
 
-  data_train, data_test = LoadDataset_Gesture(args, transform_list)
+  data_train, data_test = LoadDataset_Gesture(args, transform_list,change_channel=True)
 
   if 'cross' in args.model.fusion:
     model = mainattention_Net.MyNet_Main(args,device)
   elif 'late' in args.model.fusion:
     model = mainlate_Net.MyNet_Main(args,device)
   else:
-    model = main_Net2_quant.MyNet_Main(args,device)
+    model = main_Net.MyNet_Main(args,device)
 
   # Load model
   model.load_state_dict(torch.load(path_model))

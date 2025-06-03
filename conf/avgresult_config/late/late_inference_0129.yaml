@@ -1,4 +1,5 @@
-path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0512_att_vs_concat/late_0129_last.pt'
-path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/late_config/late_0129.yaml'
+path_model: '/home/jchang13/fusion/mmegogesture-fusion/saved_model/0530_late_finetune'
+path_args: '/home/jchang13/fusion/mmegogesture-fusion/conf/quant2/late_config/late_0129_finetune.yaml'
 path_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/'
-csv_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/csv/late_0129.csv'
+csv_save: '/home/jchang13/fusion/mmegogesture-fusion/vis_outputs/csv/trial.csv'
+quantized: False

@@ -5,6 +5,7 @@ import torch.nn as nn
 class MyNet3D(torch.nn.Module):
     def __init__(self, args):
         super(MyNet3D, self).__init__()
+        print("===> Model: 3D Network")
         # if 'resnet' in args.model.backbone:
         #     self.my3DNet = torch.hub.load('facebookresearch/pytorchvideo', 'slow_r50', pretrained=args.train.pretrain)
         #     dim_last_layer = 400
@@ -13,7 +14,7 @@ class MyNet3D(torch.nn.Module):
             self.my3DNet = get_model(num_classes=600)
             self.my3DNet = nn.DataParallel(self.my3DNet)
             if args.train.pretrain:
-                pretrain = torch.load('/workspace/mmWave_Gesture/Gesture_ML/model/weight/kinetics_mobilenetv2_1.0x_RGB_16_best.pth')
+                pretrain = torch.load('/home/jchang13/fusion/mmegogesture-fusion/downloads/kinetics_mobilenetv2_1.0x_RGB_16_best.pth')
                 self.my3DNet.load_state_dict(pretrain['state_dict'])
             self.my3DNet.module.classifier = nn.Identity()
             self.dim_last_layer = 1280

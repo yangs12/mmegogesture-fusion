@@ -90,11 +90,11 @@ def split_traintest(des_clean, mode):
         val_train = ~val_test
         des_train = des_clean[val_train].to_dict('records')
         des_test = des_clean[val_test].to_dict('records')
-        des_test = des_clean.to_dict('records')
-        des_train = des_clean.to_dict('records')
+        # des_test = des_clean.to_dict('records')
+        # des_train = des_clean.to_dict('records')
         # assert len(des_clean)==(len(des_train)+len(des_test))
-        # print(des_clean[val_train]['Gesture'].value_counts())
-        # print(des_clean[val_test]['Gesture'].value_counts())
+        print(des_clean[val_train]['Gesture'].value_counts())
+        print(des_clean[val_test]['Gesture'].value_counts())
 
         
     return des_train, des_test

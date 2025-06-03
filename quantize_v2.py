@@ -13,6 +13,10 @@ from utils.dataloader import *
 from utils.trainer_quant import Trainer
 from model.classifier_head import FusionClassifierOptions
 
+''' 
+STEP 2
+Run after main_gesture_quant2.py, this file optionally finetunes and then calibrates to quantized model
+'''
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -122,12 +126,6 @@ def main(args: DictConfig) -> None:
     # load the models
     for i, model in enumerate(model_list):
         model_name = os.path.join(args.result.path_save_model,args.result.name+'_'+str(i)+'_last.pt')
-        # hardcoded now
-        # if 'camonly' in args.model.fusion or 'concat' in args.model.fusion and i == len(model_list) - 1:
-        #     clean_state_dict = {k: v for k, v in model_name.items() if "running_" not in k and "num_batches_tracked" not in k and "fc.1" not in k and "fc.5" not in k}
-        #     model.load_state_dict(torch.load(clean_state_dict, map_location=device))
-        # else:
-        #     model.load_state_dict(torch.load(model_name, map_location=device))
         model.load_state_dict(torch.load(model_name, map_location=device))
         model.eval()
         model.to(device)
